@@ -72,4 +72,4 @@ Completed (submitted as final project).
 
 ---
 
-Made by [Jessen William](https://github.com/Jesssssswill) & team
+Made by team
