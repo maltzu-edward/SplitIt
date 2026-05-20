@@ -31,7 +31,7 @@ export class MessagesService {
 
     await this.ensureAcceptedFriendship(userId, friendId);
 
-    // Mark messages from friend to user as read
+    // tandain pesan dari temen sebagai read
     await this.prisma.message.updateMany({
       where: {
         senderId: friendId,

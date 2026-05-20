@@ -8,10 +8,11 @@
   -moz-osx-font-smoothing: grayscale;
 
   /* Colour */
-  --fun-color-primary: #0234FC;
-  --fun-color-lightgray: #878787;
+  --fun-color-primary: #2D5BFF;
+  --fun-color-lightgray: #F5F5F5;
   --fun-color-gray: #ECECEC;
-  --fun-color-error: #cc0000;
+  --fun-color-error: #FF4D4D;
+  --fun-color-success: #4CAF50;
   --fun-color-secondary: #BFD8FF;
   --fun-color-grocery: #88e119;
   /* Font */
@@ -23,6 +24,7 @@
   --color-lightgray: var(--fun-color-lightgray);
   --color-gray: var(--fun-color-gray);
   --color-error: var(--fun-color-error);
+  --color-success: var(--fun-color-success);
   --color-secondary: var(--fun-color-secondary);
   --color-grocery: var(--fun-color-grocery);
 }

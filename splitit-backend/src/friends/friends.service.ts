@@ -6,9 +6,9 @@ import { AddFriendDto, RespondFriendDto } from './dto/create-friend.dto';
 export class FriendsService {
   constructor(private prisma: PrismaService) {}
 
-  // FUNCTION 1: SEND FRIEND REQUEST
+  // kirim friend request
   async sendFriendRequest(data: AddFriendDto) {
-    // 0. Check whether the sender is registered in the DB
+    // cek sender valid dulu
     const requester = await this.prisma.user.findUnique({
       where: { id: data.requesterId },
     });
@@ -17,7 +17,7 @@ export class FriendsService {
       throw new NotFoundException('Sender ID not found in the database. Please log in again.');
     }
 
-    // 1. Find the target user by name or email
+    // cari target user by nama atau email
     const targetUser = await this.prisma.user.findFirst({
       where: {
         OR: [
@@ -36,7 +36,7 @@ export class FriendsService {
       throw new BadRequestException('You cannot add yourself.');
     }
 
-    // Check whether they are already friends or the request already exists
+    // cek udah temenan atau belom
     const existingFriendship = await this.prisma.friendship.findFirst({
       where: {
         OR: [
@@ -50,7 +50,7 @@ export class FriendsService {
       throw new BadRequestException('Friend request already exists or you are already friends.');
     }
 
-    // Create a new friend request record with PENDING status
+    // bikin friend request baru
     const newRequest = await this.prisma.friendship.create({
       data: {
         userId: data.requesterId,
@@ -62,16 +62,16 @@ export class FriendsService {
     return { message: 'Friend request sent successfully!', data: newRequest };
   }
 
-  // FUNCTION 2: CHECK NOTIFICATIONS (See who added you)
+  // lihat siapa yang nge-add kamu
   async getPendingRequests(userId: string) {
-    // Find records where we are the 'friendId' and the status is still PENDING
+    // cari pending request yang masuk
     return this.prisma.friendship.findMany({
       where: {
         friendId: userId,
         status: 'PENDING',
       },
       include: {
-        user: { select: { id: true, name: true, email: true } }, // Include the name of the user who sent the request
+        user: { select: { id: true, name: true, email: true } },
       },
     });
   }
@@ -113,7 +113,7 @@ export class FriendsService {
     });
   }
 
-  // FUNCTION 3: ACCEPT OR DECLINE
+  // accept atau decline request
   async respondToRequest(data: RespondFriendDto) {
     const friendship = await this.prisma.friendship.findUnique({
       where: { id: data.friendshipId },
@@ -124,14 +124,14 @@ export class FriendsService {
     }
 
     if (data.status === 'DECLINED') {
-      // If declined, delete the record from the database
+      // kalau decline, hapus dari DB
       await this.prisma.friendship.delete({
         where: { id: data.friendshipId },
       });
       return { message: 'Friend request rejected.' };
     }
 
-    // If accepted, update the status
+    // kalau accept, update statusnya
     const updatedFriendship = await this.prisma.friendship.update({
       where: { id: data.friendshipId },
       data: { status: 'ACCEPTED' },

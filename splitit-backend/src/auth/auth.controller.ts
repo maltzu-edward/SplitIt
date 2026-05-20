@@ -13,39 +13,37 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
-  // --- UPDATE: Add Response parameter to the login function ---
   @Post('login')
   async login(
-    @Body() loginDto: LoginDto, 
-    @Res({ passthrough: true }) response: Response // <-- NestJS trick to manipulate headers/cookies
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) response: Response
   ) {
-    // 1. Run the email/password check in the Service as usual
+    // validasi email & password dulu
     const result = await this.authService.login(loginDto);
 
-    // 2. If successful, create a JWT token and set it as an HttpOnly cookie
+    // bikin JWT token terus set cookie
     const jwtSecret = process.env.JWT_SECRET || 'SUPER_SECRET_KEY';
     const token = jwt.sign(
       { sub: result.user.id, email: result.user.email },
       jwtSecret,
-      { expiresIn: '24h' } // 24-hour token validity
+      { expiresIn: '24h' }
     );
 
     response.cookie('token', token, {
       httpOnly: true,
       secure: false, // Set true in production HTTPS
       sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24, // 24 hours as requested
+      maxAge: 1000 * 60 * 60 * 24,
     });
 
-    // Optional compatibility cookie for your existing logic
+    // cookie userId buat kompatibilitas
     response.cookie('userId', result.user.id, {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24, // also 24 hours
+      maxAge: 1000 * 60 * 60 * 24,
     });
 
-    // 3. Return the result to the frontend
     return { ...result, token };
   }
 

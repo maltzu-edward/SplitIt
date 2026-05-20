@@ -78,7 +78,6 @@ function FriendMain() {
                       className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex items-center gap-3">
-                        {/* Avatar */}
                         <div
                           className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
                           style={{ backgroundColor: AVATAR_COLORS[idx % AVATAR_COLORS.length] }}

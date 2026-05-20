@@ -7,9 +7,9 @@ import { CreateExpenseDto } from './dto/create-expense.dto';
 export class GroupsService {
   constructor(private prisma: PrismaService) {}
 
-  // FUNCTION 1: CREATE GROUP
+  // buat group baru
   async createGroup(data: CreateGroupDto) {
-    // 1. Ensure the group creator exists in the database
+    // pastiin creator ada di DB
     const creator = await this.prisma.user.findUnique({
       where: { id: data.creatorId },
     });
@@ -18,11 +18,11 @@ export class GroupsService {
       throw new NotFoundException('Creator ID not found in the database.');
     }
 
-    // 2. Combine creator ID and other member IDs, then remove duplicates
+    // gabungin creator + member, buang duplikat
     const rawMemberIds = data.memberIds ? [data.creatorId, ...data.memberIds] : [data.creatorId];
     const uniqueMemberIds = [...new Set(rawMemberIds)];
 
-    // 3. Create the group and add all members to the GroupMember table
+    // buat group & masukin semua member
     try {
       const newGroup = await this.prisma.group.create({
         data: {
@@ -49,7 +49,7 @@ export class GroupsService {
     }
   }
 
-  // FUNCTION 2: VIEW GROUP LIST (As seen in UI Pages 3 & 7)
+  // ambil list group user
   async getUserGroups(userId: string) {
     return this.prisma.group.findMany({
       where: {
@@ -74,7 +74,7 @@ export class GroupsService {
     });
   }
 
-  // FUNCTION 3: VIEW GROUP DETAILS (When the group is clicked)
+  // detail group
   async getGroupDetail(groupId: string) {
     const group = await this.prisma.group.findUnique({
       where: { id: groupId },
@@ -92,9 +92,9 @@ export class GroupsService {
     return group;
   }
 
-  // FUNCTION 4: ADD EXPENSE (As seen in UI Page 8)
+  // tambah expense ke group
   async addExpense(data: CreateExpenseDto) {
-    // 1. Ensure the group exists in the database
+    // cek group ada
     const group = await this.prisma.group.findUnique({
       where: { id: data.groupId },
     });
@@ -102,7 +102,7 @@ export class GroupsService {
       throw new NotFoundException(`Group with ID ${data.groupId} not found. Please create a group first or check the ID.`);
     }
 
-    // 2. Ensure the payer is a member of the group
+    // cek payer emang member di sini
     const member = await this.prisma.groupMember.findFirst({
       where: { groupId: data.groupId, userId: data.payerId },
     });
@@ -110,7 +110,6 @@ export class GroupsService {
       throw new BadRequestException(`User with ID ${data.payerId} is not a member of this group!`);
     }
 
-    // 3. Save the expense data with per-item splits
     const expense = await this.prisma.expense.create({
       data: {
         title: data.title,
@@ -140,7 +139,7 @@ export class GroupsService {
     return { message: 'Expense added successfully!', data: expense };
   }
 
-  // FUNCTION 5: LEAVE GROUP
+  // keluar dari group
   async leaveGroup(groupId: string, userId: string) {
     const membership = await this.prisma.groupMember.findFirst({
       where: { groupId, userId },
@@ -168,7 +167,7 @@ export class GroupsService {
     return { message: 'Left group successfully.' };
   }
 
-  // FUNCTION 6: ADD MEMBERS TO EXISTING GROUP
+  // tambah member ke group yang udah ada
   async addMembers(groupId: string, memberIds: string[]) {
     const group = await this.prisma.group.findUnique({
       where: { id: groupId },
@@ -179,7 +178,7 @@ export class GroupsService {
       throw new NotFoundException('Group not found');
     }
 
-    // Filter out users who are already members
+    // filter yang udah jadi member biar gak duplikat
     const existingUserIds = group.members.map(m => m.userId);
     const newMemberIds = memberIds.filter(id => !existingUserIds.includes(id));
 
@@ -187,7 +186,6 @@ export class GroupsService {
       return { message: 'All selected users are already members of this group.' };
     }
 
-    // Add new members
     await this.prisma.groupMember.createMany({
       data: newMemberIds.map(userId => ({
         userId,
