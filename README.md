@@ -1,11 +1,11 @@
 # SplitIt
 
-> Bill splitting app — final project for Software Engineering course at BINUS.
+> Bill splitting app, final project for Software Engineering course at BINUS.
 > Team project, my role: Backend Developer.
 
 ## About
 
-SplitIt adalah aplikasi split bill bareng temen — kayak Splitwise tapi versi
+SplitIt adalah aplikasi split bill bareng temen, kayak Splitwise tapi versi
 sendiri. Final project mata kuliah Software Engineering, dikerjain bertiga.
 
 Role aku: backend (NestJS API, Prisma schema, auth, expense splitting logic).
