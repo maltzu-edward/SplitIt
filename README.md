@@ -64,7 +64,7 @@ npm run dev
 
 ## Team
 
-3 orang. Aku backend dev, dua temen frontend.
+2 orang, front end dan backend
 
 ## Status
 
