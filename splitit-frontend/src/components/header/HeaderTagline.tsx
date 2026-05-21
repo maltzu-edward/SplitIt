@@ -12,7 +12,7 @@ function HeaderTagline({ title, subtitle, onChange, value, placeholder }: Header
   return (
     <div className="flex flex-col px-4 mt-4">
       <p className="font-bold text-base text-gray-900">{title}</p>
-      <p className="font-normal text-sm text-[var(--color-lightgray)]">
+      <p className="font-normal text-sm text-gray-400">
         {subtitle}
       </p>
       <div className="mt-3">

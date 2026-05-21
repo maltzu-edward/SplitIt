@@ -36,7 +36,7 @@ function FormInput({
             <Icon
               className={`w-5 h-5 ${
                 !showUIError
-                  ? "text-[var(--color-lightgray)]"
+                  ? "text-gray-400"
                   : "text-[var(--color-error)]"
               }`}
             />

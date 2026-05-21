@@ -7,8 +7,6 @@ import useGroupStore from "../store/GroupStore";
 import useUserAuth from "../store/UserAuthStore";
 import useFriendStore from "../store/FriendStore";
 import BottomNav from "../components/navigation/BottomNav";
-import AddExpenseModal from "../components/AddExpenseModal";
-import ExpenseCard from "../components/ExpenseCard";
 
 const GROUP_CATEGORIES = [
   { id: 'food', label: 'Food', image: '/food.svg' },
@@ -28,7 +26,6 @@ function ExpenseMain() {
   const [selectedCategory, setSelectedCategory] = useState(GROUP_CATEGORIES[0].id);
   const [leaveConfirm, setLeaveConfirm] = useState<{ groupId: string; groupName: string } | null>(null);
   const [leaveLoading, setLeaveLoading] = useState(false);
-  const [showExpenseModal, setShowExpenseModal] = useState(false);
   
   const navigate = useNavigate();
   const user = useUserAuth((s) => s.user);
@@ -111,7 +108,7 @@ function ExpenseMain() {
             <p className="text-base font-bold text-black mt-4">
               {groups.length === 0 && search.trim() === "" ? "You don't have any groups yet." : "No groups match your search."}
             </p>
-            <p className="text-sm text-[var(--color-lightgray)]">
+            <p className="text-sm text-gray-400">
               {groups.length === 0 && search.trim() === "" ? "Join or create one to get started" : "Try another group name."}
             </p>
           </div>
@@ -178,35 +175,6 @@ function ExpenseMain() {
           );
         })}
 
-        {/* Mock Expenses Section to match design */}
-        {!loading && (
-          <div className="mt-8">
-            <h2 className="text-lg font-bold text-gray-800 mb-4">Recent Expenses</h2>
-            <div className="space-y-3">
-              <ExpenseCard 
-                title="KFC Party" 
-                date="Today, 14:00" 
-                amount={150000} 
-                type="owed" 
-                icon="🍔" 
-              />
-              <ExpenseCard 
-                title="Grab to Campus" 
-                date="Yesterday, 09:30" 
-                amount={45000} 
-                type="owe" 
-                icon="🚗" 
-              />
-              <ExpenseCard 
-                title="Movie Tickets" 
-                date="24 Apr, 19:00" 
-                amount={120000} 
-                type="settled" 
-                icon="🎬" 
-              />
-            </div>
-          </div>
-        )}
       </div>
      
       {/* Create Group Modal — Step 1: Group Name & Description */}
@@ -449,11 +417,6 @@ function ExpenseMain() {
           <Plus className="text-white w-6 h-6" />
         </button>
       </div>
-
-      <AddExpenseModal 
-        isOpen={showExpenseModal} 
-        onClose={() => setShowExpenseModal(false)} 
-      />
 
       {/* Bottom Navigation */}
       <BottomNav />

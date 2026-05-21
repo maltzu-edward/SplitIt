@@ -11,19 +11,18 @@ const useUserAuth = create<UserAuthType>((set, get) => ({
 
   register: async (name, email, password) => {
     try {
-      //create user infomation in db
       await axios.post(`${API_BASE_URL}/auth/register`, {
         name,
         email,
         password,
       });
     } catch (error: unknown) {
-      //error handling
       if (axios.isAxiosError(error)) {
-        if (error.response?.status === 409) {
-          throw new Error("Email or username already exist");
+        if (!error.response) {
+          throw new Error("Tidak bisa connect ke server. Pastikan backend sudah running di port 3000.");
         }
-        throw new Error(error.response?.data?.message || "registration failed");
+        const msg = error.response.data?.message;
+        throw new Error(Array.isArray(msg) ? msg.join(", ") : msg || "Registrasi gagal, coba lagi.");
       }
       throw error;
     }

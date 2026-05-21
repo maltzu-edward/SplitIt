@@ -39,10 +39,10 @@ function UserLogin (){
                 <form onSubmit={handleSubmit} className="flex flex-col w-[343px] h-auto mt-[20px] mx-auto">
                     {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
                     
-                    <p className="text-[var(--color-lightgray)] font-bold">EMAIL</p>
+                    <p className="text-gray-400 font-bold">EMAIL</p>
                     <FormInput Icon={Mail} placeholder="ex: johndoe@gmail.com" type="email" value={email} onChange={(val) => setEmail(val)}></FormInput>
                     
-                    <p className="mt-[17px] text-[var(--color-lightgray)] font-bold">PASSWORD</p>
+                    <p className="mt-[17px] text-gray-400 font-bold">PASSWORD</p>
                     <FormInput Icon={Lock} placeholder="Create a strong password" type="password" value={password} onChange={(val) => setPassword(val)}></FormInput>
                     
                     <button 

@@ -40,18 +40,6 @@ function UserProfile() {
         <h2 className="text-2xl font-bold">{user?.name}</h2>
         <p className="text-gray-500 mb-8">{user?.email}</p>
 
-        {/* Balance Summary Card */}
-        <div className="w-full bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6 flex justify-between items-center">
-          <div className="flex-1 text-center border-r border-gray-100">
-            <p className="text-xs font-bold text-gray-400 uppercase mb-1">You are owed</p>
-            <p className="text-xl font-bold text-green-600">Rp 150.000</p>
-          </div>
-          <div className="flex-1 text-center">
-            <p className="text-xs font-bold text-gray-400 uppercase mb-1">You owe</p>
-            <p className="text-xl font-bold text-red-500">Rp 45.000</p>
-          </div>
-        </div>
-
         <div className="w-full space-y-4">
           <div className="bg-gray-50 p-4 rounded-2xl">
             <p className="text-xs font-bold text-gray-400 mb-1">
