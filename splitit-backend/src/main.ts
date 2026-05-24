@@ -1,11 +1,21 @@
-import 'dotenv/config'; 
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Pastikan folder uploads ada
+  const uploadsPath = join(process.cwd(), 'uploads');
+  if (!existsSync(uploadsPath)) mkdirSync(uploadsPath, { recursive: true });
+
+  // Sajikan file statis dari folder uploads (untuk bukti pembayaran)
+  app.useStaticAssets(uploadsPath, { prefix: '/uploads' });
   
   // 1. Enable CORS so the web frontend can access the backend
   app.enableCors({

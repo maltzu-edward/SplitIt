@@ -1,4 +1,4 @@
-import { ChevronRight, X, Plus } from "lucide-react";
+import { ChevronRight, X, Plus, User, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import HeaderTagline from "../components/header/HeaderTagline";
@@ -218,27 +218,9 @@ function ExpenseMain() {
                       value={newGroupDesc}
                       onChange={(e) => setNewGroupDesc(e.target.value)}
                       placeholder="e.g. For our trip to KFC Again!"
-                      rows={3}
+                      rows={4}
                       className="w-full bg-gray-100 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
                     />
-                  </div>
-
-                  {/* Category Selector */}
-                  <div>
-                    <p className="text-xs font-bold text-gray-500 mb-1.5">Category</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {GROUP_CATEGORIES.map((category) => (
-                        <button
-                          key={category.id}
-                          type="button"
-                          onClick={() => setSelectedCategory(category.id)}
-                          className={`flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer text-sm ${selectedCategory === category.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200 bg-gray-50'} transition`}
-                        >
-                          <img src={category.image} alt={category.label} className="w-6 h-6" />
-                          <span className="font-medium text-gray-700">{category.label}</span>
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 </div>
               ) : (
@@ -285,41 +267,42 @@ function ExpenseMain() {
                       <p className="text-sm text-gray-500">No friends match your search.</p>
                     ) : (
                       <div className="space-y-2 max-h-40 overflow-y-auto">
-                        {filteredFriends.map((friend, idx) => (
-                          <label
-                            key={friend.friendId}
-                            className={`flex items-center justify-between gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
-                              selectedMemberIds.includes(friend.friendId) 
-                                ? 'border-blue-500 bg-blue-50' 
-                                : 'border-gray-200 bg-white hover:bg-gray-50'
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                                style={{ backgroundColor: getMemberColor(idx) }}
-                              >
-                                {getInitials(friend.friend.name)}
-                              </div>
-                              <div>
-                                <p className="font-bold text-gray-800 text-sm">{friend.friend.name}</p>
-                                <p className="text-[11px] text-gray-500">{friend.friend.email}</p>
-                              </div>
-                            </div>
-                            <input
-                              type="checkbox"
-                              checked={selectedMemberIds.includes(friend.friendId)}
-                              onChange={() => {
+                        {filteredFriends.map((friend) => {
+                          const isSelected = selectedMemberIds.includes(friend.friendId);
+                          return (
+                            <button
+                              key={friend.friendId}
+                              type="button"
+                              onClick={() => {
                                 setSelectedMemberIds((current) =>
                                   current.includes(friend.friendId)
                                     ? current.filter((id) => id !== friend.friendId)
                                     : [...current, friend.friendId]
                                 );
                               }}
-                              className="w-4 h-4 accent-blue-600"
-                            />
-                          </label>
-                        ))}
+                              className={`w-full flex items-center justify-between gap-3 p-3 rounded-xl border cursor-pointer transition-colors text-left ${
+                                isSelected
+                                  ? 'border-blue-500 bg-blue-50'
+                                  : 'border-gray-200 bg-white hover:bg-gray-50'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-red-500 flex items-center justify-center shrink-0">
+                                  <User className="w-4 h-4 text-white" />
+                                </div>
+                                <div>
+                                  <p className="font-bold text-gray-800 text-sm">{friend.friend.name}</p>
+                                  <p className="text-[11px] text-gray-500">{friend.friend.email}</p>
+                                </div>
+                              </div>
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected ? 'bg-blue-600' : 'bg-gray-200'
+                              }`}>
+                                <Check className="w-3.5 h-3.5 text-white" />
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

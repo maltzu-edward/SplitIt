@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 
+
 @Injectable()
 export class ExpensesService {
   constructor(private prisma: PrismaService) {}
@@ -62,6 +63,59 @@ export class ExpensesService {
         },
       },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  // tandai split sebagai sudah dibayar (oleh yang hutang)
+  async markSplitAsPaid(splitId: string) {
+    const split = await this.prisma.expenseSplit.findUnique({ where: { id: splitId } });
+    if (!split) throw new NotFoundException('Split not found!');
+    return this.prisma.expenseSplit.update({
+      where: { id: splitId },
+      data: { isPaid: true },
+    });
+  }
+
+  // upload bukti pembayaran + tandai sebagai paid
+  async uploadProof(splitId: string, proofUrl: string) {
+    const split = await this.prisma.expenseSplit.findUnique({ where: { id: splitId } });
+    if (!split) throw new NotFoundException('Split not found!');
+    return this.prisma.expenseSplit.update({
+      where: { id: splitId },
+      data: { isPaid: true, paymentProof: proofUrl, paidAt: new Date() },
+    });
+  }
+
+  // ambil detail satu split (untuk halaman validasi)
+  async getSplitById(splitId: string) {
+    const split = await this.prisma.expenseSplit.findUnique({
+      where: { id: splitId },
+      include: {
+        user: { select: { id: true, name: true } },
+        expense: { select: { id: true, title: true, amount: true } },
+      },
+    });
+    if (!split) throw new NotFoundException('Split not found!');
+    return split;
+  }
+
+  // approve pembayaran (oleh yang dibayar)
+  async validateSplitPayment(splitId: string) {
+    const split = await this.prisma.expenseSplit.findUnique({ where: { id: splitId } });
+    if (!split) throw new NotFoundException('Split not found!');
+    return this.prisma.expenseSplit.update({
+      where: { id: splitId },
+      data: { isValidated: true },
+    });
+  }
+
+  // tolak pembayaran → reset supaya debtor upload ulang
+  async declineSplitPayment(splitId: string) {
+    const split = await this.prisma.expenseSplit.findUnique({ where: { id: splitId } });
+    if (!split) throw new NotFoundException('Split not found!');
+    return this.prisma.expenseSplit.update({
+      where: { id: splitId },
+      data: { isPaid: false, paymentProof: null, paidAt: null },
     });
   }
 }
