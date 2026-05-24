@@ -43,7 +43,7 @@ function UserLogin (){
                     <FormInput Icon={Mail} placeholder="ex: johndoe@gmail.com" type="email" value={email} onChange={(val) => setEmail(val)}></FormInput>
                     
                     <p className="mt-[17px] text-gray-400 font-bold">PASSWORD</p>
-                    <FormInput Icon={Lock} placeholder="Create a strong password" type="password" value={password} onChange={(val) => setPassword(val)}></FormInput>
+                    <FormInput Icon={Lock} placeholder="*****************" type="password" value={password} onChange={(val) => setPassword(val)}></FormInput>
                     
                     <button 
                         disabled={loading}

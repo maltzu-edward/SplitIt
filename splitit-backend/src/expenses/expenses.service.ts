@@ -71,6 +71,7 @@ export class ExpensesService {
     const owedToOthers = await this.prisma.expenseSplit.aggregate({
       where: {
         userId: userId,
+        isValidated: false,
         expense: {
           payerId: {
             not: userId,
@@ -87,9 +88,10 @@ export class ExpensesService {
         userId: {
           not: userId,
         },
+        isValidated: false,
         expense: {
           payerId: userId,
-        },
+        }
       },
       _sum: {
         amount: true,

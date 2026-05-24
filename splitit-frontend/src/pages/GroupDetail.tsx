@@ -500,7 +500,7 @@ function GroupDetail() {
                         <input
                           value={split.description}
                           onChange={(e) => setMemberSplits((p) => ({ ...p, [m.user.id]: { ...p[m.user.id], description: e.target.value } }))}
-                          placeholder="What they ordered"
+                          placeholder={m.user.id === user?.id ? "What you ordered" : "What they ordered"}
                           className="flex-1 bg-gray-50 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <div className="relative w-28">

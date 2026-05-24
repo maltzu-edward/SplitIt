@@ -118,7 +118,7 @@ function FriendMain() {
                 <p className="text-base font-bold text-black mt-4">
                     {acceptedFriends.length === 0 && search.trim() === "" ? "You don't have any friends yet." : "No friends match your search."}
                 </p>
-                <p className="text-sm text-[var(--color-lightgray)]">
+                <p className="text-sm text-gray-400">
                     {acceptedFriends.length === 0 && search.trim() === "" ? "Add friends to get started" : "Try another name or email."}
                 </p>
               </div>
