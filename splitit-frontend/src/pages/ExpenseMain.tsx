@@ -6,6 +6,7 @@ import Header from "../components/header/Header";
 import useGroupStore from "../store/GroupStore";
 import useUserAuth from "../store/UserAuthStore";
 import useFriendStore from "../store/FriendStore";
+import useExpenseStore from "../store/ExpenseStore";
 import BottomNav from "../components/navigation/BottomNav";
 
 const GROUP_CATEGORIES = [
@@ -31,13 +32,18 @@ function ExpenseMain() {
   const user = useUserAuth((s) => s.user);
   const { groups, fetchGroups, createGroup, leaveGroup, loading } = useGroupStore();
   const { acceptedFriends, fetchFriends } = useFriendStore();
+  const { summary, fetchUserSummary } = useExpenseStore();
 
   useEffect(() => {
     if (user) {
       fetchGroups(user.id);
       fetchFriends(user.id);
+      fetchUserSummary(user.id);
     }
-  }, [user, fetchGroups, fetchFriends]);
+  }, [user, fetchGroups, fetchFriends, fetchUserSummary]);
+
+  const formatCurrency = (n: number) =>
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
 
   const handleCreateGroup = async () => {
     if (!newGroupName || !user || selectedMemberIds.length === 0) return;
@@ -92,6 +98,23 @@ function ExpenseMain() {
       />
 
       <div className="flex-1 overflow-y-auto px-4 pb-24 mt-4">
+        {summary && (
+          <div className="grid grid-cols-2 gap-3 mb-5 p-4 rounded-2xl bg-gradient-to-br from-blue-50/50 to-indigo-50/30 border border-blue-100/60 shadow-sm">
+            <div className="flex flex-col bg-white/80 p-3.5 rounded-xl border border-red-100 shadow-sm transition-all active:scale-[0.99] hover:bg-white duration-200">
+              <span className="text-[10px] font-bold text-red-400 tracking-wider uppercase">You Owe</span>
+              <span className="text-base font-extrabold text-red-500 mt-1 font-mono">
+                {formatCurrency(summary.totalOwed)}
+              </span>
+            </div>
+            <div className="flex flex-col bg-white/80 p-3.5 rounded-xl border border-green-100 shadow-sm transition-all active:scale-[0.99] hover:bg-white duration-200">
+              <span className="text-[10px] font-bold text-green-400 tracking-wider uppercase">Owed to You</span>
+              <span className="text-base font-extrabold text-green-600 mt-1 font-mono">
+                {formatCurrency(summary.totalOwe)}
+              </span>
+            </div>
+          </div>
+        )}
+
         {loading && (
           <div className="flex items-center justify-center py-10">
             <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />

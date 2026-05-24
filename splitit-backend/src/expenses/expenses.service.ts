@@ -64,4 +64,40 @@ export class ExpensesService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  // ambil summary uang yang harus dibayar dan yang harus diterima
+  async getUserSummary(userId: string) {
+    const owedToOthers = await this.prisma.expenseSplit.aggregate({
+      where: {
+        userId: userId,
+        expense: {
+          payerId: {
+            not: userId,
+          },
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    const owedToUser = await this.prisma.expenseSplit.aggregate({
+      where: {
+        userId: {
+          not: userId,
+        },
+        expense: {
+          payerId: userId,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    return {
+      totalOwed: owedToOthers._sum.amount || 0,
+      totalOwe: owedToUser._sum.amount || 0,
+    };
+  }
 }

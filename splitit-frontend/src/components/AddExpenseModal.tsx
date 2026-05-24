@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check, Users, Split, Percent, Plus } from "lucide-react";
+import { X, Check, Users, Split, Percent } from "lucide-react";
 import { cn } from "../utils/cn";
 import useFriendStore from "../store/FriendStore";
 

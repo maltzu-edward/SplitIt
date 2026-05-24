@@ -17,4 +17,10 @@ export class ExpensesController {
   getGroupExpenses(@Param('groupId') groupId: string) {
     return this.expensesService.getGroupExpenses(groupId);
   }
+
+  // Route: GET http://127.0.0.1:3000/expenses/user-summary/:userId
+  @Get('user-summary/:userId')
+  getUserSummary(@Param('userId') userId: string) {
+    return this.expensesService.getUserSummary(userId);
+  }
 }

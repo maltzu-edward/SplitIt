@@ -114,8 +114,6 @@ function GroupDetail() {
     .filter(([k]) => k.startsWith(`${user?.id}->`))
     .map(([, v]) => v);
 
-  const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
-
   // --- Modal handlers ---
   const openAddModal = () => {
     setExpenseTitle("");

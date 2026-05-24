@@ -32,7 +32,9 @@ interface ExpenseStore {
   expenses: Expense[];
   loading: boolean;
   error: string | null;
+  summary: { totalOwed: number; totalOwe: number } | null;
   fetchGroupExpenses: (groupId: string) => Promise<void>;
+  fetchUserSummary: (userId: string) => Promise<void>;
   addExpense: (data: {
     title: string;
     amount: number;
@@ -50,6 +52,7 @@ const useExpenseStore = create<ExpenseStore>((set) => ({
   expenses: [],
   loading: false,
   error: null,
+  summary: null,
 
   fetchGroupExpenses: async (groupId: string) => {
     set({ loading: true, error: null });
@@ -76,6 +79,18 @@ const useExpenseStore = create<ExpenseStore>((set) => ({
     } catch (err: any) {
       set({ error: err.message, loading: false });
       throw err;
+    }
+  },
+
+  fetchUserSummary: async (userId: string) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/expenses/user-summary/${userId}`,
+        { withCredentials: true }
+      );
+      set({ summary: response.data });
+    } catch (err: any) {
+      console.error("Failed to fetch user summary", err);
     }
   },
 }));
