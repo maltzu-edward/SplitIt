@@ -5,7 +5,7 @@ import { CreateExpenseDto } from './dto/create-expense.dto';
 
 @Injectable()
 export class ExpensesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   // tambah expense baru
   async addExpense(data: CreateExpenseDto) {
@@ -27,14 +27,14 @@ export class ExpensesService {
         // per-person splits kalau ada
         ...(data.splits && data.splits.length > 0
           ? {
-              splits: {
-                create: data.splits.map((split) => ({
-                  userId: split.userId,
-                  amount: split.amount,
-                  description: split.description || null,
-                })),
-              },
-            }
+            splits: {
+              create: data.splits.map((split) => ({
+                userId: split.userId,
+                amount: split.amount,
+                description: split.description || null,
+              })),
+            },
+          }
           : {}),
       },
       include: {

@@ -19,7 +19,7 @@ const proofStorage = diskStorage({
 
 @Controller('expenses')
 export class ExpensesController {
-  constructor(private readonly expensesService: ExpensesService) {}
+  constructor(private readonly expensesService: ExpensesService) { }
 
   // Route: POST http://127.0.0.1:3000/expenses
   @Post()
@@ -77,7 +77,7 @@ export class ExpensesController {
   }))
   uploadProof(
     @Param('splitId') splitId: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: any,
   ) {
     if (!file) throw new BadRequestException('File bukti pembayaran diperlukan');
     return this.expensesService.uploadProof(splitId, `/uploads/${file.filename}`);
