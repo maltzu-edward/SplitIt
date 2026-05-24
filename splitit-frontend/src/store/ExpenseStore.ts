@@ -8,6 +8,10 @@ export interface ExpenseSplit {
   userId: string;
   amount: number;
   description?: string;
+  isPaid: boolean;
+  isValidated: boolean;
+  paymentProof?: string;
+  paidAt?: string;
   user?: {
     id: string;
     name: string;
@@ -46,6 +50,10 @@ interface ExpenseStore {
       description?: string;
     }[];
   }) => Promise<void>;
+  markSplitAsPaid: (splitId: string) => Promise<void>;
+  validatePayment: (splitId: string) => Promise<void>;
+  declinePayment: (splitId: string) => Promise<void>;
+  submitPaymentProof: (splitId: string, file: File) => Promise<void>;
 }
 
 const useExpenseStore = create<ExpenseStore>((set) => ({
@@ -92,6 +100,40 @@ const useExpenseStore = create<ExpenseStore>((set) => ({
     } catch (err: any) {
       console.error("Failed to fetch user summary", err);
     }
+  },
+
+  markSplitAsPaid: async (splitId: string) => {
+    await axios.patch(
+      `${API_BASE_URL}/expenses/split/${splitId}/pay`,
+      {},
+      { withCredentials: true }
+    );
+  },
+
+  validatePayment: async (splitId: string) => {
+    await axios.patch(
+      `${API_BASE_URL}/expenses/split/${splitId}/validate`,
+      {},
+      { withCredentials: true }
+    );
+  },
+
+  declinePayment: async (splitId: string) => {
+    await axios.patch(
+      `${API_BASE_URL}/expenses/split/${splitId}/decline`,
+      {},
+      { withCredentials: true }
+    );
+  },
+
+  submitPaymentProof: async (splitId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('proof', file);
+    await axios.post(
+      `${API_BASE_URL}/expenses/split/${splitId}/proof`,
+      formData,
+      { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
+    );
   },
 }));
 

@@ -26,6 +26,17 @@ function Notification() {
     }
   };
 
+  const getRelativeTime = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs} hr ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  };
+
   const getInitials = (name: string) => {
     const parts = name?.trim().split(' ').filter(Boolean) || [];
     if (parts.length === 0) return '?';
@@ -78,7 +89,7 @@ function Notification() {
                     <p className="text-[11px] text-gray-500 mt-0.5">{notification.user?.email ?? ""}</p>
                   </div>
                   <span className="text-[10px] text-gray-400 shrink-0">
-                    {notification.createdAt ? new Date(notification.createdAt).toLocaleDateString() : ''}
+                    {notification.createdAt ? getRelativeTime(notification.createdAt) : ''}
                   </span>
                 </div>
 

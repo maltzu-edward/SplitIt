@@ -110,6 +110,10 @@ model ExpenseSplit {
   userId      String
   amount      Float    // How much this person owes
   description String?  // What they ordered (e.g., "Chicken + Coca Cola")
+  isPaid        Boolean   @default(false) // Sudah klaim bayar?
+  isValidated   Boolean   @default(false) // Sudah divalidasi pembayar?
+  paymentProof  String?   // URL bukti pembayaran (foto transfer)
+  paidAt        DateTime? // Waktu klaim bayar dikirim
 
   expense     Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
   user        User     @relation(fields: [userId], references: [id])
