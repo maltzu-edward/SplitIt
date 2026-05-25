@@ -1,11 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 
-interface ReceiptItem {
+export interface ReceiptItem {
   name: string;
   price: number;
 }
 
-interface ReceiptResult {
+export interface ReceiptResult {
   title: string;
   items: ReceiptItem[];
   total: number;
@@ -49,6 +49,8 @@ export class OcrService {
     });
 
     if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      console.error('[OCR] Groq API error:', JSON.stringify(errBody));
       throw new BadRequestException('Failed to process image with OCR service');
     }
 

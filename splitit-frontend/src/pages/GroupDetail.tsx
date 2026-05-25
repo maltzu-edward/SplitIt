@@ -521,7 +521,7 @@ function GroupDetail() {
                   {scannedReceipt.items.length > 0 && (
                     <div className="mt-1.5 space-y-0.5">
                       {scannedReceipt.items.map((item, i) => (
-                        <p key={i} className="text-[11px] text-green-600 dark:text-green-400">• {item.name} — {formatCurrency(item.price)}</p>
+                        <p key={i} className="text-[11px] text-green-600 dark:text-green-400">• {item.name} {formatCurrency(item.price)}</p>
                       ))}
                     </div>
                   )}
