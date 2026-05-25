@@ -31,6 +31,8 @@ Role aku: backend (NestJS API, Prisma schema, auth, expense splitting logic).
 - Group expenses with per-item splits
 - In-group messaging
 - Settlement tracking
+- **Dark mode** — toggle light/dark theme, preferensi disimpan ke localStorage
+- **OCR Scan Struk** — foto struk belanja → nama & total otomatis terisi pakai Groq Vision AI
 
 ## Getting Started
 
@@ -53,6 +55,47 @@ npm install
 cp .env.example .env
 npm run dev
 ```
+
+## Environment Variables
+
+### Backend (`splitit-backend/.env`)
+
+| Variable | Keterangan |
+|---|---|
+| `DATABASE_URL` | Koneksi MySQL, contoh: `mysql://root@localhost:3306/splitit_db` |
+| `JWT_SECRET` | Secret key untuk signing JWT token |
+| `PORT` | Port backend (default `3000`) |
+| `GROQ_API_KEY` | API key dari [console.groq.com](https://console.groq.com) untuk fitur OCR scan struk |
+
+### Frontend (`splitit-frontend/.env`)
+
+| Variable | Keterangan |
+|---|---|
+| `VITE_API_BASE_URL` | URL backend, contoh: `http://localhost:3000` |
+
+## Fitur OCR Scan Struk
+
+Fitur ini menggunakan **Groq Vision AI** (`meta-llama/llama-4-scout-17b-16e-instruct`) untuk membaca foto struk belanja secara otomatis.
+
+**Cara pakai:**
+1. Buka detail group → klik tombol **+** (Add Expense)
+2. Klik **📷 Scan Struk Otomatis**
+3. Pilih foto struk dari galeri/kamera
+4. Nama toko & total otomatis terisi
+5. Assign manual siapa bayar berapa
+
+**Alur teknis:**
+```
+Frontend → POST /ocr/scan (multipart image)
+         → Backend convert ke base64
+         → Groq Vision API parse struk
+         → Return { title, items[], total }
+         → Frontend auto-fill form
+```
+
+## Dark Mode
+
+Toggle dark/light mode via ikon bulan/matahari di header. Preferensi disimpan ke `localStorage` sehingga tetap aktif setelah refresh.
 
 ## What I Learned
 
