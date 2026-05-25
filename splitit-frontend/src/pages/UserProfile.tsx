@@ -29,29 +29,29 @@ function UserProfile() {
   };
 
   return (
-    <div className="h-screen w-screen bg-white flex flex-col overflow-hidden">
+    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
       <Header />
 
       <div className="flex-1 px-6 py-8 flex flex-col items-center">
-        <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-4">
+        <div className="w-24 h-24 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center text-blue-600 mb-4">
           <UserRound className="w-12 h-12" />
         </div>
 
-        <h2 className="text-2xl font-bold">{user?.name}</h2>
-        <p className="text-gray-500 mb-8">{user?.email}</p>
+        <h2 className="text-2xl font-bold dark:text-white">{user?.name}</h2>
+        <p className="text-gray-500 dark:text-gray-400 mb-8">{user?.email}</p>
 
         <div className="w-full space-y-4">
-          <div className="bg-gray-50 p-4 rounded-2xl">
-            <p className="text-xs font-bold text-gray-400 mb-1">
+          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl">
+            <p className="text-xs font-bold text-gray-400 dark:text-gray-500 mb-1">
               USER ID (Share this to your friends)
             </p>
-            <div className="flex items-center w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <span className="flex-1 text-sm font-mono px-3 py-3 text-gray-700 break-all select-all">
+            <div className="flex items-center w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+              <span className="flex-1 text-sm font-mono px-3 py-3 text-gray-700 dark:text-gray-200 break-all select-all">
                 {user?.id}
               </span>
               <button
                 onClick={handleCopy}
-                className="flex h-full items-center justify-center px-4 border-l border-gray-200 text-gray-500 hover:bg-gray-100 transition-colors"
+                className="flex h-full items-center justify-center px-4 border-l border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                 title="Copy ID"
               >
                 {copied ? (
@@ -67,7 +67,7 @@ function UserProfile() {
 
           <button
             onClick={handleLogout}
-            className="w-full py-4 bg-red-50 text-red-600 rounded-2xl font-bold flex items-center justify-center gap-2 active:bg-red-100 transition-colors"
+            className="w-full py-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-2xl font-bold flex items-center justify-center gap-2 active:bg-red-100 dark:active:bg-red-900/40 transition-colors"
           >
             <LogOut className="w-5 h-5" />
             Logout

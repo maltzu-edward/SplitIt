@@ -14,10 +14,10 @@ function BottomNav() {
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white h-16 w-screen border-t border-gray-200 flex flex-row z-40">
+    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 h-16 w-screen border-t border-gray-200 dark:border-gray-700 flex flex-row z-40">
       {tabs.map((tab) => {
         const active = isActive(tab.to);
-        const colorClass = active ? "text-blue-600" : "text-gray-400";
+        const colorClass = active ? "text-blue-600" : "text-gray-400 dark:text-gray-500";
         return (
           <Link
             key={tab.to}

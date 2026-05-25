@@ -46,24 +46,26 @@ function GroupDetail() {
   const [group, setGroup] = useState<GroupDetailData | null>(null);
   const [groupLoading, setGroupLoading] = useState(true);
 
-  // Add Expense Modal
   const [showAddModal, setShowAddModal] = useState(false);
   const [expenseTitle, setExpenseTitle] = useState("");
   const [memberSplits, setMemberSplits] = useState<Record<string, SplitInput>>({});
 
-  // Add Member Modal
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [memberSearch, setMemberSearch] = useState("");
   const [selectedNewMembers, setSelectedNewMembers] = useState<string[]>([]);
   const [addMemberLoading, setAddMemberLoading] = useState(false);
 
-  // Proof Upload Modal
   const [showProofModal, setShowProofModal] = useState(false);
   const [proofSplitId, setProofSplitId] = useState<string | null>(null);
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
   const [uploadingProof, setUploadingProof] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // OCR scan state
+  const [scanningReceipt, setScanningReceipt] = useState(false);
+  const [scannedReceipt, setScannedReceipt] = useState<{ title: string; items: { name: string; price: number }[]; total: number } | null>(null);
+  const scanInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (groupId) {
@@ -101,7 +103,6 @@ function GroupDetail() {
   const COLORS = ["#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899"];
   const memberCount = group?.members?.length || 1;
 
-  // Splits where others owe you (you ARE the payer)
   const peopleOweYouItems: SplitDebtItem[] = expenses.flatMap((exp: any) => {
     if (exp.payerId !== user?.id) return [];
     return (exp.splits || [])
@@ -119,13 +120,38 @@ function GroupDetail() {
       }));
   });
 
-  // --- Handlers ---
   const openAddModal = () => {
     setExpenseTitle("");
+    setScannedReceipt(null);
     const initial: Record<string, SplitInput> = {};
     group?.members.forEach((m) => { initial[m.user.id] = { description: "", amount: "" }; });
     setMemberSplits(initial);
     setShowAddModal(true);
+  };
+
+  const handleScanReceipt = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setScanningReceipt(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await fetch(`${API_BASE_URL}/ocr/scan`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Scan failed');
+      const data = await res.json();
+      setScannedReceipt(data);
+      if (data.title) setExpenseTitle(data.title);
+    } catch (err) {
+      console.error('OCR scan error:', err);
+      alert('Gagal memindai struk. Coba lagi.');
+    } finally {
+      setScanningReceipt(false);
+      if (scanInputRef.current) scanInputRef.current.value = '';
+    }
   };
 
   const totalSplitAmount = Object.values(memberSplits).reduce((s, v) => s + (parseFloat(v.amount) || 0), 0);
@@ -205,31 +231,31 @@ function GroupDetail() {
   );
 
   if (groupLoading) return (
-    <div className="h-screen w-screen bg-white flex items-center justify-center">
+    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex items-center justify-center">
       <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   if (!group) return (
-    <div className="h-screen w-screen bg-white flex flex-col items-center justify-center gap-4">
-      <p className="text-lg font-bold">Group not found</p>
+    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex flex-col items-center justify-center gap-4">
+      <p className="text-lg font-bold dark:text-white">Group not found</p>
       <button onClick={() => navigate("/expense")} className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold">Go Back</button>
     </div>
   );
 
   return (
-    <div className="h-screen w-screen bg-white flex flex-col overflow-hidden">
+    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate("/expense")} className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-gray-700" />
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700 px-4 py-3 flex items-center gap-3">
+        <button onClick={() => navigate("/expense")} className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-200" />
         </button>
-        <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 shrink-0">
+        <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shrink-0">
           <img src={group.groupImage || "/GroupLogo.png"} alt="Group" className="w-full h-full object-cover" />
         </div>
         <div className="min-w-0">
-          <h1 className="text-lg font-bold text-gray-900 truncate">{group.name}</h1>
-          <p className="text-xs text-gray-500">{memberCount} members</p>
+          <h1 className="text-lg font-bold text-gray-900 dark:text-white truncate">{group.name}</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{memberCount} members</p>
         </div>
       </div>
 
@@ -238,7 +264,7 @@ function GroupDetail() {
         {/* Members */}
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Members</p>
+            <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Members</p>
             <button
               onClick={() => { setShowAddMemberModal(true); setSelectedNewMembers([]); setMemberSearch(""); }}
               className="flex items-center gap-1 text-xs font-bold text-blue-600 cursor-pointer"
@@ -253,7 +279,7 @@ function GroupDetail() {
                   style={{ backgroundColor: COLORS[i % COLORS.length] }}>
                   {getInitials(m.user.name)}
                 </div>
-                <p className="text-[10px] text-gray-500 font-medium max-w-[56px] truncate">
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium max-w-[56px] truncate">
                   {m.user.id === user?.id ? "You" : m.user.name.split(" ")[0]}
                 </p>
               </div>
@@ -261,29 +287,27 @@ function GroupDetail() {
           </div>
         </div>
 
-        {/* ── People Who Owe You ── */}
+        {/* People Who Owe You */}
         {peopleOweYouItems.length > 0 && (
           <div className="px-4 pt-3">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">People Who Owe You</p>
+            <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">People Who Owe You</p>
             {peopleOweYouItems.map((item) => (
-              <div key={item.splitId} className="flex items-center justify-between p-3 mb-2 bg-white rounded-xl border border-gray-200 shadow-sm">
-                {/* Left: avatar + info */}
+              <div key={item.splitId} className="flex items-center justify-between p-3 mb-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${item.isValidated ? 'bg-green-100' : 'bg-red-100'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${item.isValidated ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
                     {item.isValidated
                       ? <CheckCircle className="w-5 h-5 text-green-500" />
                       : <User className="w-5 h-5 text-red-400" />
                     }
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-900">{item.personName}</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">{item.personName}</p>
                     {item.isValidated && <p className="text-[11px] text-green-600 font-medium">Settled ✓</p>}
                     {!item.isValidated && item.isPaid && <p className="text-[11px] text-blue-500 font-medium">Has paid · Waiting validation</p>}
-                    {!item.isValidated && !item.isPaid && <p className="text-[11px] text-gray-400">Hasn't paid yet</p>}
+                    {!item.isValidated && !item.isPaid && <p className="text-[11px] text-gray-400 dark:text-gray-500">Hasn't paid yet</p>}
                   </div>
                 </div>
 
-                {/* Right: amount + actions */}
                 <div className="flex flex-col items-end gap-1">
                   <p className={`text-sm font-bold ${item.isValidated ? 'text-green-500' : 'text-red-500'}`}>
                     {formatCurrency(item.amount)}
@@ -291,7 +315,6 @@ function GroupDetail() {
                   <p className={`text-[10px] font-semibold ${item.isValidated ? 'text-green-400' : 'text-red-400'}`}>
                     {item.isValidated ? 'Settled' : 'Owes You'}
                   </p>
-                  {/* Validate button: only when debtor has paid but payer hasn't confirmed */}
                   {item.isPaid && !item.isValidated && (
                     <button
                       onClick={() => openValidationPage(item)}
@@ -306,23 +329,22 @@ function GroupDetail() {
           </div>
         )}
 
-        {/* ── Your Expense ── */}
+        {/* Your Expense */}
         <div className="px-4 pt-3">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Your Expense</p>
-          {expenseLoading && <p className="text-center text-sm text-gray-500">Loading...</p>}
+          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Your Expense</p>
+          {expenseLoading && <p className="text-center text-sm text-gray-500 dark:text-gray-400">Loading...</p>}
 
           {!expenseLoading && expenses.length === 0 && (
             <div className="flex flex-col items-center py-12">
-              <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mb-3">
+              <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-3">
                 <Receipt className="w-7 h-7 text-blue-400" />
               </div>
-              <p className="text-sm font-bold text-gray-800">No expenses yet</p>
-              <p className="text-xs text-gray-500 mt-1">Tap + to add a bill</p>
+              <p className="text-sm font-bold text-gray-800 dark:text-white">No expenses yet</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Tap + to add a bill</p>
             </div>
           )}
 
           {!expenseLoading && expenses
-            // Only show expenses the current user is involved in
             .filter((exp: any) => {
               const isPayer = exp.payerId === user?.id;
               const hasSplit = exp.splits?.some((s: any) => s.userId === user?.id && s.amount > 0);
@@ -333,39 +355,33 @@ function GroupDetail() {
               const mySplit = !isPayer ? exp.splits?.find((s: any) => s.userId === user?.id) : null;
               const isPaid = mySplit?.isPaid ?? false;
               const isValidated = mySplit?.isValidated ?? false;
-              // count people besides the payer who have splits
               const splitCount = exp.splits?.filter((s: any) => s.amount > 0).length || memberCount;
 
-              // GREEN = payer or settled; RED/PINK = debtor with unpaid debt
               const cardClass = isPayer
-                ? 'bg-green-50 border-green-300'
+                ? 'bg-green-50 border-green-300 dark:bg-green-900/20 dark:border-green-800'
                 : isValidated
-                  ? 'bg-green-50 border-green-300'
-                  : 'bg-red-50 border-red-200';
+                  ? 'bg-green-50 border-green-300 dark:bg-green-900/20 dark:border-green-800'
+                  : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800';
 
               return (
                 <div key={exp.id} className={`rounded-2xl p-4 mb-3 border-2 ${cardClass}`}>
                   <div className="flex items-start gap-3">
-                    {/* Receipt icon */}
-                    <div className="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center text-xl shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-xl shrink-0">
                       🧾
                     </div>
 
-                    {/* Left: title, date, who paid, split count */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-900 truncate">{exp.title}</p>
-                      <p className="text-[10px] text-gray-400 mb-1">{formatDate(exp.createdAt)}</p>
-                      <p className="text-[11px] font-semibold text-gray-700">
+                      <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{exp.title}</p>
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-1">{formatDate(exp.createdAt)}</p>
+                      <p className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">
                         {isPayer ? "You" : exp.payer?.name} Paid
                       </p>
-                      <p className="text-[11px] text-gray-500">Split Among {splitCount} People.</p>
+                      <p className="text-[11px] text-gray-500 dark:text-gray-400">Split Among {splitCount} People.</p>
                     </div>
 
-                    {/* Right: total amount → owe amount → Pay button */}
                     <div className="flex flex-col items-end gap-1.5 shrink-0">
-                      <p className="text-base font-bold text-gray-900">{formatCurrency(exp.amount)}</p>
+                      <p className="text-base font-bold text-gray-900 dark:text-white">{formatCurrency(exp.amount)}</p>
 
-                      {/* You Owe / status (right column, below total) */}
                       {!isPayer && mySplit && (
                         isValidated
                           ? <p className="text-[11px] font-bold text-green-600">Settled ✓</p>
@@ -376,7 +392,6 @@ function GroupDetail() {
                               </p>
                       )}
 
-                      {/* Pay button: debtor who hasn't paid */}
                       {!isPayer && mySplit && !isPaid && !isValidated && (
                         <button
                           onClick={() => openProofModal(mySplit.id)}
@@ -402,31 +417,30 @@ function GroupDetail() {
         </button>
       </div>
 
-      {/* ── PROOF UPLOAD MODAL ── */}
+      {/* Proof Upload Modal */}
       {showProofModal && (
         <div className="fixed inset-0 bg-black/60 flex items-end justify-center z-50">
-          <div className="bg-white rounded-t-3xl w-full max-w-lg shadow-2xl">
+          <div className="bg-white dark:bg-gray-800 rounded-t-3xl w-full max-w-lg shadow-2xl">
             <div className="flex items-center justify-between px-5 pt-5 pb-3">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">Upload Bukti Pembayaran</h2>
-                <p className="text-xs text-gray-500">Foto struk transfer atau bukti bayar</p>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Upload Bukti Pembayaran</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Foto struk transfer atau bukti bayar</p>
               </div>
-              <button onClick={() => setShowProofModal(false)} className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer">
-                <X className="w-5 h-5 text-gray-500" />
+              <button onClick={() => setShowProofModal(false)} className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center cursor-pointer">
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-300" />
               </button>
             </div>
 
             <div className="px-5 pb-8">
-              {/* Picker area */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition-colors mb-4 overflow-hidden"
+                className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition-colors mb-4 overflow-hidden"
                 style={{ minHeight: 200 }}
               >
                 {proofPreview ? (
                   <img src={proofPreview} alt="Preview" className="w-full max-h-56 object-contain" />
                 ) : (
-                  <div className="flex flex-col items-center py-10 gap-2 text-gray-400">
+                  <div className="flex flex-col items-center py-10 gap-2 text-gray-400 dark:text-gray-500">
                     <ImageIcon className="w-10 h-10" />
                     <p className="text-sm font-medium">Klik untuk pilih foto</p>
                     <p className="text-xs">JPG, PNG — maks 5MB</p>
@@ -453,64 +467,105 @@ function GroupDetail() {
         </div>
       )}
 
-      {/* ── ADD EXPENSE MODAL ── */}
+      {/* Add Expense Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50">
-          <div className="bg-white rounded-t-3xl w-full max-w-lg shadow-2xl" style={{ maxHeight: "92vh" }}>
+          <div className="bg-white dark:bg-gray-800 rounded-t-3xl w-full max-w-lg shadow-2xl" style={{ maxHeight: "92vh" }}>
             <div className="flex items-center justify-between px-5 pt-5 pb-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
                   <Receipt className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900">Add Bill</h2>
-                  <p className="text-xs text-gray-500">Assign items to each person</p>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">Add Bill</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Assign items to each person</p>
                 </div>
               </div>
-              <button onClick={() => setShowAddModal(false)} className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer">
-                <X className="w-5 h-5 text-gray-500" />
+              <button onClick={() => setShowAddModal(false)} className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center cursor-pointer">
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-300" />
               </button>
             </div>
 
             <div className="px-5 pb-5 overflow-y-auto" style={{ maxHeight: "75vh" }}>
+              {/* Scan Struk Button */}
               <div className="mb-4">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1.5">Bill Name</label>
+                <button
+                  type="button"
+                  onClick={() => scanInputRef.current?.click()}
+                  disabled={scanningReceipt}
+                  className="w-full py-2.5 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center justify-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {scanningReceipt ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      Memindai struk...
+                    </>
+                  ) : (
+                    <>📷 Scan Struk Otomatis</>
+                  )}
+                </button>
+                <input
+                  ref={scanInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleScanReceipt}
+                />
+              </div>
+
+              {/* Scanned receipt info */}
+              {scannedReceipt && (
+                <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-3">
+                  <p className="text-xs font-bold text-green-600 dark:text-green-400 mb-1">✓ Struk berhasil dipindai</p>
+                  <p className="text-xs text-green-700 dark:text-green-300">Total terdeteksi: <span className="font-bold">{formatCurrency(scannedReceipt.total)}</span></p>
+                  {scannedReceipt.items.length > 0 && (
+                    <div className="mt-1.5 space-y-0.5">
+                      {scannedReceipt.items.map((item, i) => (
+                        <p key={i} className="text-[11px] text-green-600 dark:text-green-400">• {item.name} — {formatCurrency(item.price)}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="mb-4">
+                <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1.5">Bill Name</label>
                 <input
                   value={expenseTitle}
                   onChange={(e) => setExpenseTitle(e.target.value)}
                   placeholder="e.g., KFC Lunch"
-                  className="w-full bg-gray-100 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  className="w-full bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 />
               </div>
 
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">What did each person order?</label>
+              <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-2">What did each person order?</label>
               <div className="space-y-3 mb-4">
                 {group?.members.map((m, i) => {
                   const split = memberSplits[m.user.id] || { description: "", amount: "" };
                   return (
-                    <div key={m.id} className="rounded-xl border border-gray-200 p-3">
+                    <div key={m.id} className="rounded-xl border border-gray-200 dark:border-gray-700 p-3 dark:bg-gray-750">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
                           style={{ backgroundColor: COLORS[i % COLORS.length] }}>
                           {getInitials(m.user.name)}
                         </div>
-                        <span className="text-sm font-bold text-gray-800">{m.user.id === user?.id ? "You" : m.user.name}</span>
+                        <span className="text-sm font-bold text-gray-800 dark:text-gray-100">{m.user.id === user?.id ? "You" : m.user.name}</span>
                       </div>
                       <div className="flex gap-2">
                         <input
                           value={split.description}
                           onChange={(e) => setMemberSplits((p) => ({ ...p, [m.user.id]: { ...p[m.user.id], description: e.target.value } }))}
                           placeholder={m.user.id === user?.id ? "What you ordered" : "What they ordered"}
-                          className="flex-1 bg-gray-50 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                          className="flex-1 bg-gray-50 dark:bg-gray-700 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                         />
                         <div className="relative w-28">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">Rp</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-gray-500">Rp</span>
                           <input
                             type="number"
                             value={split.amount}
                             onChange={(e) => setMemberSplits((p) => ({ ...p, [m.user.id]: { ...p[m.user.id], amount: e.target.value } }))}
                             placeholder="0"
-                            className="w-full bg-gray-50 rounded-lg pl-8 pr-3 py-2 text-sm text-right font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full bg-gray-50 dark:bg-gray-700 rounded-lg pl-8 pr-3 py-2 text-sm text-right font-bold outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                           />
                         </div>
                       </div>
@@ -519,9 +574,9 @@ function GroupDetail() {
                 })}
               </div>
 
-              <div className="bg-blue-50 rounded-xl p-3 mb-4 flex items-center justify-between">
+              <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-3 mb-4 flex items-center justify-between">
                 <span className="text-sm text-blue-600 font-medium">Total Bill</span>
-                <span className="text-lg font-bold text-blue-700">{formatCurrency(totalSplitAmount)}</span>
+                <span className="text-lg font-bold text-blue-700 dark:text-blue-400">{formatCurrency(totalSplitAmount)}</span>
               </div>
 
               <button
@@ -536,37 +591,37 @@ function GroupDetail() {
         </div>
       )}
 
-      {/* ── ADD MEMBER MODAL ── */}
+      {/* Add Member Modal */}
       {showAddMemberModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl relative">
-            <button onClick={() => setShowAddMemberModal(false)} className="absolute top-4 right-4 text-gray-400 cursor-pointer">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm p-6 shadow-xl relative">
+            <button onClick={() => setShowAddMemberModal(false)} className="absolute top-4 right-4 text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300">
               <X className="w-6 h-6" />
             </button>
             <div className="flex flex-col items-center mb-5">
-              <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-3">
+              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-3">
                 <UserPlus className="w-6 h-6 text-blue-600" />
               </div>
-              <h2 className="text-xl font-bold">Add Members</h2>
-              <p className="text-sm text-gray-500 text-center">Add friends to "{group.name}"</p>
+              <h2 className="text-xl font-bold dark:text-white">Add Members</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Add friends to "{group.name}"</p>
             </div>
             <div className="mb-4">
               <input
                 value={memberSearch}
                 onChange={(e) => setMemberSearch(e.target.value)}
                 placeholder="Search friend"
-                className="w-full bg-gray-100 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full bg-gray-100 dark:bg-gray-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             </div>
             {availableFriends.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">No friends available to add.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No friends available to add.</p>
             ) : (
               <div className="space-y-2 max-h-44 overflow-y-auto mb-4">
                 {availableFriends.map((f) => (
-                  <label key={f.friendId} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50">
+                  <label key={f.friendId} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                     <div>
-                      <p className="font-bold text-gray-800 text-sm">{f.friend.name}</p>
-                      <p className="text-[11px] text-gray-500">{f.friend.email}</p>
+                      <p className="font-bold text-gray-800 dark:text-gray-100 text-sm">{f.friend.name}</p>
+                      <p className="text-[11px] text-gray-500 dark:text-gray-400">{f.friend.email}</p>
                     </div>
                     <input
                       type="checkbox"
@@ -579,7 +634,7 @@ function GroupDetail() {
               </div>
             )}
             <div className="flex gap-3 pt-2">
-              <button onClick={() => setShowAddMemberModal(false)} className="flex-1 py-3 border border-gray-300 rounded-xl font-bold text-gray-600 cursor-pointer">Cancel</button>
+              <button onClick={() => setShowAddMemberModal(false)} className="flex-1 py-3 border border-gray-300 dark:border-gray-600 rounded-xl font-bold text-gray-600 dark:text-gray-300 cursor-pointer">Cancel</button>
               <button
                 onClick={handleAddMembers}
                 disabled={selectedNewMembers.length === 0 || addMemberLoading}

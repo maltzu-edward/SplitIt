@@ -27,7 +27,7 @@ function ExpenseMain() {
   const [selectedCategory, setSelectedCategory] = useState(GROUP_CATEGORIES[0].id);
   const [leaveConfirm, setLeaveConfirm] = useState<{ groupId: string; groupName: string } | null>(null);
   const [leaveLoading, setLeaveLoading] = useState(false);
-  
+
   const navigate = useNavigate();
   const user = useUserAuth((s) => s.user);
   const { groups, fetchGroups, createGroup, leaveGroup, loading } = useGroupStore();
@@ -86,7 +86,7 @@ function ExpenseMain() {
   );
 
   return (
-    <div className="h-screen w-screen bg-white flex flex-col overflow-hidden">
+    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
       <Header />
 
       <HeaderTagline
@@ -100,13 +100,13 @@ function ExpenseMain() {
       <div className="flex-1 overflow-y-auto px-4 pb-24 mt-4">
         {summary && (
           <div className="grid grid-cols-2 gap-3 mb-3 p-4 rounded-xl to-indigo-50/30">
-            <div className="flex flex-col bg-white/80 p-3.5 rounded-xl shadow-sm transition-all active:scale-[0.99] hover:bg-white duration-200">
+            <div className="flex flex-col bg-white/80 dark:bg-gray-800/80 p-3.5 rounded-xl shadow-sm transition-all active:scale-[0.99] hover:bg-white dark:hover:bg-gray-800 duration-200">
               <span className="text-[10px] font-bold text-red-400 tracking-wider uppercase">You Owe</span>
               <span className="text-base font-extrabold text-red-500 mt-1 font-mono">
                 {formatCurrency(summary.totalOwed)}
               </span>
             </div>
-            <div className="flex flex-col bg-white/80 p-3.5 rounded-xl shadow-sm transition-all active:scale-[0.99] hover:bg-white duration-200">
+            <div className="flex flex-col bg-white/80 dark:bg-gray-800/80 p-3.5 rounded-xl shadow-sm transition-all active:scale-[0.99] hover:bg-white dark:hover:bg-gray-800 duration-200">
               <span className="text-[10px] font-bold text-green-400 tracking-wider uppercase">Owed to You</span>
               <span className="text-base font-extrabold text-green-600 mt-1 font-mono">
                 {formatCurrency(summary.totalOwe)}
@@ -120,7 +120,7 @@ function ExpenseMain() {
             <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
           </div>
         )}
-        
+
         {!loading && filteredGroups.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full mt-[-50px]">
             <img
@@ -128,10 +128,10 @@ function ExpenseMain() {
               alt="Group Logo"
               className="w-32 h-32 object-contain"
             />
-            <p className="text-base font-bold text-black mt-4">
+            <p className="text-base font-bold text-black dark:text-white mt-4">
               {groups.length === 0 && search.trim() === "" ? "You don't have any groups yet." : "No groups match your search."}
             </p>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-400 dark:text-gray-500">
               {groups.length === 0 && search.trim() === "" ? "Join or create one to get started" : "Try another group name."}
             </p>
           </div>
@@ -141,16 +141,15 @@ function ExpenseMain() {
           const groupImageSrc = group.groupImage || '/GroupLogo.png';
           const totalMembers = (group as any)._count?.members || group.members?.length || 0;
           const displayedMembers = group.members?.slice(0, 3) || [];
-          
+
           return (
             <div
               key={group.id}
-              className="rounded-2xl border border-gray-200 bg-white w-full p-4 mb-3 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
+              className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 w-full p-4 mb-3 flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               onClick={() => navigate(`/group/${group.id}`)}
             >
               <div className="flex items-center gap-3">
-                {/* Group Image */}
-                <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
+                <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shrink-0">
                   <img
                     src={groupImageSrc}
                     alt="Group Icon"
@@ -158,24 +157,23 @@ function ExpenseMain() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-gray-900">{group.name}</p>
-                  {/* Member Avatars */}
+                  <p className="text-sm font-bold text-gray-900 dark:text-white">{group.name}</p>
                   <div className="flex items-center mt-1 -space-x-1.5">
                     {displayedMembers.map((member, index) => (
                       <div
                         key={`${group.id}-member-${index}`}
-                        className="w-5 h-5 rounded-full border-2 border-white flex items-center justify-center text-[8px] font-bold text-white"
+                        className="w-5 h-5 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-[8px] font-bold text-white"
                         style={{ backgroundColor: getMemberColor(index) }}
                       >
                         {getInitials(member?.user?.name || '')}
                       </div>
                     ))}
                     {totalMembers > 3 && (
-                      <div className="w-5 h-5 rounded-full bg-gray-300 border-2 border-white flex items-center justify-center text-[8px] font-bold text-gray-700">
+                      <div className="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 border-2 border-white dark:border-gray-800 flex items-center justify-center text-[8px] font-bold text-gray-700 dark:text-gray-200">
                         +{totalMembers - 3}
                       </div>
                     )}
-                    <span className="text-[10px] text-gray-400 font-medium ml-3">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium ml-3">
                       {totalMembers} Members
                     </span>
                   </div>
@@ -188,23 +186,23 @@ function ExpenseMain() {
                     e.stopPropagation();
                     setLeaveConfirm({ groupId: group.id, groupName: group.name });
                   }}
-                  className="px-2.5 py-1 text-xs font-bold text-red-500 border border-red-200 rounded-lg hover:bg-red-50 cursor-pointer active:bg-red-100 transition shrink-0"
+                  className="px-2.5 py-1 text-xs font-bold text-red-500 border border-red-200 dark:border-red-900/50 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer active:bg-red-100 transition shrink-0"
                 >
                   Leave
                 </button>
-                <ChevronRight className="w-5 h-5 text-gray-400 shrink-0" />
+                <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 shrink-0" />
               </div>
             </div>
           );
         })}
 
       </div>
-     
+
       {/* Create Group Modal — Step 1: Group Name & Description */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl relative">
-            <button onClick={() => setShowCreateModal(false)} className="absolute top-4 right-4 text-gray-400 cursor-pointer hover:text-gray-600 transition-colors">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm p-6 shadow-xl relative">
+            <button onClick={() => setShowCreateModal(false)} className="absolute top-4 right-4 text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
               <X className="w-6 h-6" />
             </button>
 
@@ -212,13 +210,13 @@ function ExpenseMain() {
               <img src="/Groups.png" alt="Group Logo" className="w-14 h-14 mb-3" />
               {modalStep === 1 ? (
                 <>
-                  <h2 className="text-xl font-bold text-gray-900">Create New Group</h2>
-                  <p className="text-sm text-gray-500 text-center">Start tracking expenses with your friends</p>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create New Group</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Start tracking expenses with your friends</p>
                 </>
               ) : (
                 <>
-                  <h2 className="text-xl font-bold text-gray-900">Add your friends</h2>
-                  <p className="text-sm text-gray-500 text-center">Use the search bar to find your friends easily</p>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add your friends</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Use the search bar to find your friends easily</p>
                 </>
               )}
             </div>
@@ -227,44 +225,43 @@ function ExpenseMain() {
               {modalStep === 1 ? (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs font-bold text-gray-500 mb-1.5">Group Name</p>
+                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Group Name</p>
                     <input
                       value={newGroupName}
                       onChange={(e) => setNewGroupName(e.target.value)}
                       placeholder="e.g., KFC Party part 2"
-                      className="w-full bg-gray-100 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full bg-gray-100 dark:bg-gray-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-500 mb-1.5">Group Description</p>
+                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Group Description</p>
                     <textarea
                       value={newGroupDesc}
                       onChange={(e) => setNewGroupDesc(e.target.value)}
                       placeholder="e.g. For our trip to KFC Again!"
                       rows={4}
-                      className="w-full bg-gray-100 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
+                      className="w-full bg-gray-100 dark:bg-gray-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     />
                   </div>
                 </div>
               ) : (
                 <div>
-                  <p className="text-xs font-bold text-gray-500 mb-1.5">Search Member</p>
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Search Member</p>
                   <div className="relative">
                     <input
                       value={friendSearch}
                       onChange={(e) => setFriendSearch(e.target.value)}
                       placeholder="Search Friend"
-                      className="w-full bg-gray-100 rounded-lg p-3 pr-9 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      className="w-full bg-gray-100 dark:bg-gray-700 rounded-lg p-3 pr-9 outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     />
                     <div className="absolute inset-y-0 right-3 flex items-center">
                       <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
                   </div>
 
-                  {/* Added Friends (selected) */}
                   {selectedMemberIds.length > 0 && (
                     <div className="mt-3">
-                      <p className="text-xs font-bold text-gray-500 mb-1.5">Added Friends</p>
+                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Added Friends</p>
                       <div className="flex items-center gap-1.5">
                         {acceptedFriends
                           .filter((f) => selectedMemberIds.includes(f.friendId))
@@ -281,13 +278,12 @@ function ExpenseMain() {
                     </div>
                   )}
 
-                  {/* Friend List */}
                   <div className="mt-3">
-                    <p className="text-xs font-bold text-gray-500 mb-1.5">Add Friends</p>
+                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Add Friends</p>
                     {acceptedFriends.length === 0 ? (
                       <p className="text-sm text-red-500">You have no accepted friends yet. Invite friends first.</p>
                     ) : filteredFriends.length === 0 ? (
-                      <p className="text-sm text-gray-500">No friends match your search.</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">No friends match your search.</p>
                     ) : (
                       <div className="space-y-2 max-h-40 overflow-y-auto">
                         {filteredFriends.map((friend) => {
@@ -305,8 +301,8 @@ function ExpenseMain() {
                               }}
                               className={`w-full flex items-center justify-between gap-3 p-3 rounded-xl border cursor-pointer transition-colors text-left ${
                                 isSelected
-                                  ? 'border-blue-500 bg-blue-50'
-                                  : 'border-gray-200 bg-white hover:bg-gray-50'
+                                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                                  : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
                               }`}
                             >
                               <div className="flex items-center gap-3">
@@ -314,12 +310,12 @@ function ExpenseMain() {
                                   <User className="w-4 h-4 text-white" />
                                 </div>
                                 <div>
-                                  <p className="font-bold text-gray-800 text-sm">{friend.friend.name}</p>
-                                  <p className="text-[11px] text-gray-500">{friend.friend.email}</p>
+                                  <p className="font-bold text-gray-800 dark:text-gray-100 text-sm">{friend.friend.name}</p>
+                                  <p className="text-[11px] text-gray-500 dark:text-gray-400">{friend.friend.email}</p>
                                 </div>
                               </div>
                               <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                                isSelected ? 'bg-blue-600' : 'bg-gray-200'
+                                isSelected ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
                               }`}>
                                 <Check className="w-3.5 h-3.5 text-white" />
                               </div>
@@ -335,7 +331,7 @@ function ExpenseMain() {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 py-3 border border-gray-300 rounded-xl font-bold text-gray-600 cursor-pointer active:bg-gray-50 transition-colors"
+                  className="flex-1 py-3 border border-gray-300 dark:border-gray-600 rounded-xl font-bold text-gray-600 dark:text-gray-300 cursor-pointer active:bg-gray-50 dark:active:bg-gray-700 transition-colors"
                 >
                   Cancel
                 </button>
@@ -365,19 +361,19 @@ function ExpenseMain() {
       {/* Leave Group Confirmation Modal */}
       {leaveConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-xs p-6 shadow-xl text-center">
-            <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-xs p-6 shadow-xl text-center">
+            <div className="w-14 h-14 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <X className="w-7 h-7 text-red-500" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Leave Group?</h3>
-            <p className="text-sm text-gray-500 mb-6">
-              Are you sure you want to leave <span className="font-bold text-gray-700">"{leaveConfirm.groupName}"</span>?
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Leave Group?</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+              Are you sure you want to leave <span className="font-bold text-gray-700 dark:text-gray-200">"{leaveConfirm.groupName}"</span>?
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setLeaveConfirm(null)}
                 disabled={leaveLoading}
-                className="flex-1 py-3 border border-gray-300 rounded-xl font-bold text-gray-600 cursor-pointer active:bg-gray-50 transition-colors"
+                className="flex-1 py-3 border border-gray-300 dark:border-gray-600 rounded-xl font-bold text-gray-600 dark:text-gray-300 cursor-pointer active:bg-gray-50 dark:active:bg-gray-700 transition-colors"
               >
                 Cancel
               </button>
@@ -407,7 +403,7 @@ function ExpenseMain() {
 
       {/* Floating Create Group Button */}
       <div className="fixed bottom-20 right-4 z-40 flex items-center gap-2">
-        <span className="text-xs font-bold text-gray-500">Create a new group</span>
+        <span className="text-xs font-bold text-gray-500 dark:text-gray-400">Create a new group</span>
         <button
             onClick={() => {
               setModalStep(1);

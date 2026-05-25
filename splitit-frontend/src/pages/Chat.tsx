@@ -84,7 +84,6 @@ function Chat() {
     return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // Group messages by date
   const getDateLabel = (dateStr: string) => {
     const date = new Date(dateStr);
     const today = new Date();
@@ -96,13 +95,13 @@ function Chat() {
   };
 
   return (
-    <div className="h-screen w-screen bg-white flex flex-col overflow-hidden">
+    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
 
-      {/* Blue Gradient Chat Header (matches Figma) */}
+      {/* Blue Gradient Chat Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate(-1)} 
+          <button
+            onClick={() => navigate(-1)}
             className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer hover:bg-white/20 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-white" />
@@ -126,15 +125,15 @@ function Chat() {
           <div className="flex items-center justify-center h-full">
             <div className="flex flex-col items-center gap-2">
               <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-gray-500">Loading messages...</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Loading messages...</p>
             </div>
           </div>
         )}
 
         {!initialLoading && messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
-            <p className="text-sm text-gray-400">No messages yet</p>
-            <p className="text-xs mt-1 text-gray-400">Say hi to {friendName}!</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">No messages yet</p>
+            <p className="text-xs mt-1 text-gray-400 dark:text-gray-500">Say hi to {friendName}!</p>
           </div>
         )}
 
@@ -142,15 +141,14 @@ function Chat() {
           <div className="space-y-2">
             {messages.map((message: any, idx: number) => {
               const isMine = message.senderId === user?.id;
-              // Show date label if first message or different day from previous
-              const showDate = idx === 0 || 
+              const showDate = idx === 0 ||
                 getDateLabel(message.createdAt) !== getDateLabel(messages[idx - 1].createdAt);
-              
+
               return (
                 <div key={message.id}>
                   {showDate && (
                     <div className="flex justify-center my-3">
-                      <span className="text-[10px] text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+                      <span className="text-[10px] text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
                         {getDateLabel(message.createdAt)}
                       </span>
                     </div>
@@ -160,11 +158,11 @@ function Chat() {
                       className={`max-w-[75%] rounded-2xl px-3.5 py-2 ${
                         isMine
                           ? 'bg-[var(--fun-color-primary)] text-white rounded-br-md'
-                          : 'bg-gray-100 text-gray-900 rounded-bl-md'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md'
                       }`}
                     >
                       <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
-                      <p className={`mt-0.5 text-[10px] text-right ${isMine ? 'text-blue-200' : 'text-gray-400'}`}>
+                      <p className={`mt-0.5 text-[10px] text-right ${isMine ? 'text-blue-200' : 'text-gray-400 dark:text-gray-500'}`}>
                         {formatTime(message.createdAt)}
                       </p>
                     </div>
@@ -177,15 +175,15 @@ function Chat() {
         )}
       </div>
 
-      {/* Message Input (matches Figma) */}
-      <div className="bg-white border-t border-gray-100 px-4 py-3">
+      {/* Message Input */}
+      <div className="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 px-4 py-3">
         <div className="flex gap-2 items-center">
           <input
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="flex-1 rounded-full bg-gray-100 border border-gray-200 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            className="flex-1 rounded-full bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
           />
           <button
             onClick={handleSendMessage}
@@ -193,7 +191,7 @@ function Chat() {
             className={`h-10 w-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
               draft.trim() && !sending
                 ? 'bg-[var(--fun-color-primary)] text-white active:scale-90'
-                : 'bg-gray-200 text-gray-400'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
             }`}
           >
             {sending ? (

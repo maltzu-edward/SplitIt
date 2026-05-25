@@ -26,8 +26,8 @@ function PaymentValidation() {
 
   if (!state) {
     return (
-      <div className="h-screen w-screen bg-white flex flex-col items-center justify-center gap-4">
-        <p className="text-gray-500 text-sm">No payment data found.</p>
+      <div className="h-screen w-screen bg-white dark:bg-gray-900 flex flex-col items-center justify-center gap-4">
+        <p className="text-gray-500 dark:text-gray-400 text-sm">No payment data found.</p>
         <button onClick={() => navigate(-1)} className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm">
           Go Back
         </button>
@@ -73,7 +73,7 @@ function PaymentValidation() {
   };
 
   return (
-    <div className="h-screen w-screen bg-gray-50 flex flex-col overflow-hidden">
+    <div className="h-screen w-screen bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="bg-blue-600 px-4 py-4 flex items-center gap-3 shadow-sm">
         <button
@@ -88,17 +88,14 @@ function PaymentValidation() {
       {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-5">
-          {/* From + expense info */}
           <div className="mb-4">
-            <p className="text-base font-bold text-gray-900">From {personName}</p>
-            <p className="text-sm text-gray-500">{expenseTitle} · {formatCurrency(amount)}</p>
+            <p className="text-base font-bold text-gray-900 dark:text-white">From {personName}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{expenseTitle} · {formatCurrency(amount)}</p>
           </div>
 
-          {/* Receipt Photo label */}
           <p className="text-sm font-semibold text-blue-600 underline mb-2">Receipt Photo</p>
 
-          {/* Proof image */}
-          <div className="rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 mb-3" style={{ minHeight: 220 }}>
+          <div className="rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mb-3" style={{ minHeight: 220 }}>
             {paymentProof ? (
               <img
                 src={`${API_BASE_URL}${paymentProof}`}
@@ -107,19 +104,17 @@ function PaymentValidation() {
                 style={{ maxHeight: 400 }}
               />
             ) : (
-              <div className="flex flex-col items-center justify-center gap-2 text-gray-400 py-16">
+              <div className="flex flex-col items-center justify-center gap-2 text-gray-400 dark:text-gray-500 py-16">
                 <ImageOff className="w-10 h-10" />
                 <p className="text-sm">No proof uploaded</p>
               </div>
             )}
           </div>
 
-          {/* Upload date */}
-          <p className="text-sm text-gray-500 mb-6">
-            Uploaded : <span className="font-semibold text-gray-700">{formatUploadDate(paidAt)}</span>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+            Uploaded : <span className="font-semibold text-gray-700 dark:text-gray-200">{formatUploadDate(paidAt)}</span>
           </p>
 
-          {/* Approve */}
           <button
             onClick={handleApprove}
             disabled={loading !== null}
@@ -128,11 +123,10 @@ function PaymentValidation() {
             {loading === "approve" ? "Processing..." : "Approve"}
           </button>
 
-          {/* Decline */}
           <button
             onClick={handleDecline}
             disabled={loading !== null}
-            className="w-full py-3.5 bg-red-100 text-red-500 font-bold rounded-xl active:brightness-90 disabled:opacity-60 cursor-pointer transition-all text-sm border border-red-200"
+            className="w-full py-3.5 bg-red-100 dark:bg-red-900/20 text-red-500 font-bold rounded-xl active:brightness-90 disabled:opacity-60 cursor-pointer transition-all text-sm border border-red-200 dark:border-red-800"
           >
             {loading === "decline" ? "Processing..." : "Decline"}
           </button>

@@ -14,12 +14,12 @@ function FormInput({
   Icon,
   placeholder = "Enter your text........",
   type = "text",
-  value, 
+  value,
   onChange,
   onValidate,
   errorMessage,
 }: FormInputProps) {
-  
+
   const [isON, setON] = useState<boolean>(false);
   const isValid = onValidate ? onValidate(value) : true;
 
@@ -53,9 +53,9 @@ function FormInput({
               onChange(e.target.value)}
             }
           placeholder={value ? "" : placeholder}
-          className={`w-full h-10 rounded-lg px-3 py-2 focus:outline-none
+          className={`w-full h-10 rounded-lg px-3 py-2 focus:outline-none dark:text-white dark:placeholder-gray-500
           ${value.length > 0 ? "pl-3" : "pl-10"}
-          ${!showUIError ? "bg-[var(--color-gray)] border-gray-300 focus:ring-2 focus:ring-blue-500" : "border-red-500 bg-red-50"}`}
+          ${!showUIError ? "bg-[var(--color-gray)] dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500" : "border-red-500 bg-red-50 dark:bg-red-900/20"}`}
         />
       </div>
       {showUIError && errorMessage}
