@@ -58,6 +58,12 @@ body {
   padding: 0;
   height: 100%;
   /* overflow: hidden; */
+  background-color: #ffffff;
+}
+
+html.dark,
+html.dark body {
+  background-color: #111827;
 }
 
 #root {

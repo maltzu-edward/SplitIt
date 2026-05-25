@@ -65,6 +65,7 @@ function GroupDetail() {
   // OCR scan state
   const [scanningReceipt, setScanningReceipt] = useState(false);
   const [scannedReceipt, setScannedReceipt] = useState<{ title: string; items: { name: string; price: number }[]; total: number } | null>(null);
+  const [assignedItems, setAssignedItems] = useState<{ name: string; price: number; assignedTo: string[] }[]>([]);
   const scanInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -123,6 +124,7 @@ function GroupDetail() {
   const openAddModal = () => {
     setExpenseTitle("");
     setScannedReceipt(null);
+    setAssignedItems([]);
     const initial: Record<string, SplitInput> = {};
     group?.members.forEach((m) => { initial[m.user.id] = { description: "", amount: "" }; });
     setMemberSplits(initial);
@@ -145,6 +147,9 @@ function GroupDetail() {
       const data = await res.json();
       setScannedReceipt(data);
       if (data.title) setExpenseTitle(data.title);
+      if (data.items?.length > 0) {
+        setAssignedItems(data.items.map((item: { name: string; price: number }) => ({ ...item, assignedTo: [] })));
+      }
     } catch (err) {
       console.error('OCR scan error:', err);
       alert('Gagal memindai struk. Coba lagi.');
@@ -152,6 +157,31 @@ function GroupDetail() {
       setScanningReceipt(false);
       if (scanInputRef.current) scanInputRef.current.value = '';
     }
+  };
+
+  const toggleItemAssignment = (itemIdx: number, userId: string) => {
+    setAssignedItems(prev => prev.map((item, i) => {
+      if (i !== itemIdx) return item;
+      const already = item.assignedTo.includes(userId);
+      return { ...item, assignedTo: already ? item.assignedTo.filter(id => id !== userId) : [...item.assignedTo, userId] };
+    }));
+  };
+
+  const applyItemAssignment = () => {
+    const newSplits: Record<string, SplitInput> = {};
+    group?.members.forEach(m => { newSplits[m.user.id] = { description: '', amount: '' }; });
+    assignedItems.forEach(item => {
+      if (item.assignedTo.length === 0) return;
+      const share = Math.round(item.price / item.assignedTo.length);
+      item.assignedTo.forEach(uid => {
+        const cur = newSplits[uid];
+        newSplits[uid] = {
+          description: cur.description ? `${cur.description}, ${item.name}` : item.name,
+          amount: String((parseFloat(cur.amount) || 0) + share),
+        };
+      });
+    });
+    setMemberSplits(newSplits);
   };
 
   const totalSplitAmount = Object.values(memberSplits).reduce((s, v) => s + (parseFloat(v.amount) || 0), 0);
@@ -513,18 +543,54 @@ function GroupDetail() {
                 />
               </div>
 
-              {/* Scanned receipt info */}
-              {scannedReceipt && (
-                <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-3">
-                  <p className="text-xs font-bold text-green-600 dark:text-green-400 mb-1">✓ Struk berhasil dipindai</p>
-                  <p className="text-xs text-green-700 dark:text-green-300">Total terdeteksi: <span className="font-bold">{formatCurrency(scannedReceipt.total)}</span></p>
-                  {scannedReceipt.items.length > 0 && (
-                    <div className="mt-1.5 space-y-0.5">
-                      {scannedReceipt.items.map((item, i) => (
-                        <p key={i} className="text-[11px] text-green-600 dark:text-green-400">• {item.name} {formatCurrency(item.price)}</p>
-                      ))}
-                    </div>
-                  )}
+              {/* Item Assignment */}
+              {assignedItems.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Assign Item ke Member</p>
+                    <p className="text-[11px] text-green-600 dark:text-green-400 font-bold">Total: {formatCurrency(scannedReceipt?.total ?? 0)}</p>
+                  </div>
+                  <div className="space-y-2">
+                    {assignedItems.map((item, itemIdx) => (
+                      <div key={itemIdx} className="rounded-xl border border-gray-200 dark:border-gray-700 p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex-1 mr-2">{item.name}</p>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white shrink-0">{formatCurrency(item.price)}</p>
+                        </div>
+                        <div className="flex gap-1.5 flex-wrap">
+                          {group?.members.map((m, i) => {
+                            const isSelected = item.assignedTo.includes(m.user.id);
+                            const label = m.user.id === user?.id ? 'You' : m.user.name.split(' ')[0];
+                            return (
+                              <button
+                                key={m.id}
+                                type="button"
+                                onClick={() => toggleItemAssignment(itemIdx, m.user.id)}
+                                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
+                                  isSelected ? 'text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                                }`}
+                                style={isSelected ? { backgroundColor: COLORS[i % COLORS.length] } : undefined}
+                              >
+                                {label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {item.assignedTo.length > 1 && (
+                          <p className="text-[11px] text-blue-500 dark:text-blue-400 mt-1.5">
+                            Split {item.assignedTo.length} orang → {formatCurrency(Math.round(item.price / item.assignedTo.length))} / orang
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={applyItemAssignment}
+                    className="w-full mt-3 py-2.5 bg-blue-600 text-white font-bold rounded-xl text-sm active:brightness-90 cursor-pointer transition-all"
+                  >
+                    Apply Split
+                  </button>
                 </div>
               )}
 
@@ -543,7 +609,7 @@ function GroupDetail() {
                 {group?.members.map((m, i) => {
                   const split = memberSplits[m.user.id] || { description: "", amount: "" };
                   return (
-                    <div key={m.id} className="rounded-xl border border-gray-200 dark:border-gray-700 p-3 dark:bg-gray-750">
+                    <div key={m.id} className="rounded-xl border border-gray-200 dark:border-gray-700 p-3 dark:bg-gray-800">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
                           style={{ backgroundColor: COLORS[i % COLORS.length] }}>

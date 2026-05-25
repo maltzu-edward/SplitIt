@@ -39,7 +39,7 @@ export class OcrService {
               },
               {
                 type: 'text',
-                text: 'Ini adalah foto struk/nota belanja. Ekstrak informasi dan kembalikan HANYA dalam format JSON berikut (tanpa teks lain): {"title": "nama toko atau deskripsi singkat", "items": [{"name": "nama item", "price": 12000}], "total": 50000}. Semua harga dalam angka (bukan string). Jika tidak bisa membaca struk, kembalikan {"title": "Struk", "items": [], "total": 0}.',
+                text: 'Ini adalah foto struk/nota belanja. Ekstrak informasi dan kembalikan HANYA dalam format JSON berikut (tanpa teks lain): {"title": "nama toko atau deskripsi singkat", "items": [{"name": "nama item", "price": 24000}], "total": 50000}. PENTING: Untuk field "price" setiap item, gunakan TOTAL harga per baris (jumlah x harga satuan). Misalnya jika struk menampilkan "2 x 12.000 = 24.000", gunakan 24000 sebagai price (bukan 12000). Semua harga dalam angka (bukan string). Jika tidak bisa membaca struk, kembalikan {"title": "Struk", "items": [], "total": 0}.',
               },
             ],
           },

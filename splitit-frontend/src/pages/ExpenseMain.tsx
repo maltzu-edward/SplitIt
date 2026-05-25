@@ -186,7 +186,7 @@ function ExpenseMain() {
                     e.stopPropagation();
                     setLeaveConfirm({ groupId: group.id, groupName: group.name });
                   }}
-                  className="px-2.5 py-1 text-xs font-bold text-red-500 border border-red-200 dark:border-red-900/50 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer active:bg-red-100 transition shrink-0"
+                  className="px-2.5 py-1 text-xs font-bold text-red-500 border border-red-200 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 cursor-pointer active:bg-red-100 dark:active:bg-red-900/40 transition shrink-0"
                 >
                   Leave
                 </button>

@@ -62,16 +62,16 @@ function UserRegister() {
                 <form onSubmit={handleSubmit} className="flex flex-col w-[343px] h-auto mt-[20px] mx-auto">
                     {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
 
-                    <p className="text-gray-400 font-bold">NAME</p>
+                    <p className="text-gray-600 dark:text-gray-400 font-bold">NAME</p>
                     <FormInput Icon={UserRound} placeholder="Your Name" type="text" value={name} onValidate={validateName} errorMessage={InputErrorMessage("Name must be 5-20 characters!")} onChange={(val) => setName(val)}></FormInput>
 
-                    <p className="mt-[17px] text-gray-400 font-bold">EMAIL</p>
+                    <p className="mt-[17px] text-gray-600 dark:text-gray-400 font-bold">EMAIL</p>
                     <FormInput Icon={Mail} placeholder="ex:johndoe@gmail.com" type="email" value={email} onChange={(val) => setEmail(val)} onValidate={validateEmail} errorMessage={InputErrorMessage("Please enter a valid email")}></FormInput>
 
-                    <p className="mt-[17px] text-gray-400 font-bold">PASSWORD</p>
+                    <p className="mt-[17px] text-gray-600 dark:text-gray-400 font-bold">PASSWORD</p>
                     <FormInput Icon={Lock} placeholder="Create strong password" type="password" onValidate={validatePassword} value={password} onChange={(val) => setPassword(val)} errorMessage={InputErrorMessage("Password must contain symbol, uppercase, lowercase, and at least 8 characters")}></FormInput>
 
-                    <p className="mt-[17px] text-gray-400 font-bold">CONFIRM PASSWORD</p>
+                    <p className="mt-[17px] text-gray-600 dark:text-gray-400 font-bold">CONFIRM PASSWORD</p>
                     <FormInput Icon={Lock} placeholder="Confirm your password" type="password" onValidate={validateConfirmPassword} value={confirmPassword} onChange={(val) => setConfirmPassword(val)} errorMessage={InputErrorMessage("Password doesn't match")}></FormInput>
 
                     <button
