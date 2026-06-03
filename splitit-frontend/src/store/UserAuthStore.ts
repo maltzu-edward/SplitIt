@@ -52,10 +52,13 @@ const useUserAuth = create<UserAuthType>((set, get) => ({
   fetchProfile: async () => {
     try {
       const token = localStorage.getItem('token');
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
+      if (!token) {
+        set({ user: null, authChecked: true });
+        return;
       }
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${token}`
+      };
 
       const userRes = await axios.get(
         `${API_BASE_URL}/auth/profile`,
