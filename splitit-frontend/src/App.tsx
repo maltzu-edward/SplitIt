@@ -9,10 +9,12 @@ import GroupDetail from "./pages/GroupDetail";
 import PaymentValidation from "./pages/PaymentValidation";
 import FriendMain from "./pages/FriendMain";
 import UserProfile from "./pages/UserProfile";
-import Notification from "./pages/Notification";
+import FriendRequests from "./pages/FriendRequests";
 import Chat from "./pages/Chat";
 import { useEffect } from "react";
 import useUserAuth from "./store/UserAuthStore";
+
+import DashboardLayout from "./components/navigation/DashboardLayout";
 
 function App() {
     const fetchProfile = useUserAuth((s) => s.fetchProfile);
@@ -31,13 +33,15 @@ function App() {
             </Route>
 
             <Route element={<ProtectedRoute />}>
-                <Route path="/expense" element={<ExpenseMain />} />
-                <Route path="/group/:groupId" element={<GroupDetail />} />
-                <Route path="/payment-validation/:splitId" element={<PaymentValidation />} />
-                <Route path="/friends" element={<FriendMain />} />
-                <Route path="/chat/:friendId" element={<Chat />} />
-                <Route path="/profile" element={<UserProfile />} />
-                <Route path="/notification" element={<Notification />} />
+                <Route element={<DashboardLayout />}>
+                    <Route path="/expense" element={<ExpenseMain />} />
+                    <Route path="/group/:groupId" element={<GroupDetail />} />
+                    <Route path="/payment-validation/:splitId" element={<PaymentValidation />} />
+                    <Route path="/friends" element={<FriendMain />} />
+                    <Route path="/chat/:friendId" element={<Chat />} />
+                    <Route path="/profile" element={<UserProfile />} />
+                    <Route path="/friend-requests" element={<FriendRequests />} />
+                </Route>
             </Route>
         </Routes>
     );

@@ -82,4 +82,10 @@ export class ExpensesController {
     if (!file) throw new BadRequestException('File bukti pembayaran diperlukan');
     return this.expensesService.uploadProof(splitId, `/uploads/${file.filename}`);
   }
+
+  // Route: GET http://127.0.0.1:3000/expenses/recent-activity/:userId
+  @Get('recent-activity/:userId')
+  getRecentActivity(@Param('userId') userId: string) {
+    return this.expensesService.getRecentActivity(userId);
+  }
 }

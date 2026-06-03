@@ -37,8 +37,12 @@ interface ExpenseStore {
   loading: boolean;
   error: string | null;
   summary: { totalOwed: number; totalOwe: number } | null;
+  recentActivities: any[];
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
   fetchGroupExpenses: (groupId: string) => Promise<void>;
   fetchUserSummary: (userId: string) => Promise<void>;
+  fetchRecentActivities: (userId: string) => Promise<void>;
   addExpense: (data: {
     title: string;
     amount: number;
@@ -61,6 +65,9 @@ const useExpenseStore = create<ExpenseStore>((set) => ({
   loading: false,
   error: null,
   summary: null,
+  recentActivities: [],
+  searchQuery: "",
+  setSearchQuery: (query) => set({ searchQuery: query }),
 
   fetchGroupExpenses: async (groupId: string) => {
     set({ loading: true, error: null });
@@ -99,6 +106,18 @@ const useExpenseStore = create<ExpenseStore>((set) => ({
       set({ summary: response.data });
     } catch (err: any) {
       console.error("Failed to fetch user summary", err);
+    }
+  },
+
+  fetchRecentActivities: async (userId: string) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/expenses/recent-activity/${userId}`,
+        { withCredentials: true }
+      );
+      set({ recentActivities: response.data });
+    } catch (err: any) {
+      console.error("Failed to fetch recent activities", err);
     }
   },
 

@@ -14,6 +14,16 @@ function Chat() {
   const [initialLoading, setInitialLoading] = useState(true);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const prevMessagesLengthRef = useRef(0);
+
+  useEffect(() => {
+    // Disable main window scrollbar while in Chat view
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -45,8 +55,26 @@ function Chat() {
   }, [user, friendId]);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (messages.length === 0) return;
+
+    const container = scrollContainerRef.current;
+    const isFirstLoad = prevMessagesLengthRef.current === 0;
+    const lengthChanged = messages.length !== prevMessagesLengthRef.current;
+
+    // Check if user is scrolled near the bottom (within 150px)
+    const isNearBottom = container
+      ? (container.scrollHeight - container.scrollTop - container.clientHeight < 150)
+      : true;
+
+    // Check if the last message is from the logged-in user
+    const lastMessageIsMine = messages[messages.length - 1]?.senderId === user?.id;
+
+    if (isFirstLoad || (lengthChanged && (isNearBottom || lastMessageIsMine))) {
+      chatEndRef.current?.scrollIntoView({ behavior: isFirstLoad ? 'auto' : 'smooth' });
+    }
+
+    prevMessagesLengthRef.current = messages.length;
+  }, [messages, user?.id]);
 
   const friend = acceptedFriends.find((friend) => friend.friendId === friendId);
   const friendName = friend?.friend?.name ?? 'Friend';
@@ -95,111 +123,119 @@ function Chat() {
   };
 
   return (
-    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
-
-      {/* Blue Gradient Chat Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer hover:bg-white/20 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-          <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-sm">
-            {getInitials(friendName)}
-          </div>
-          <div>
-            <h1 className="text-base font-bold">{friendName}</h1>
-            <p className="text-[11px] text-green-300 font-medium">Online</p>
-          </div>
-        </div>
-        <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors cursor-pointer">
-          <MoreVertical className="w-5 h-5 text-white" />
-        </button>
-      </div>
-
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
-        {initialLoading && (
-          <div className="flex items-center justify-center h-full">
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">Loading messages...</p>
+    <div className="absolute top-16 bottom-0 left-0 right-0 flex flex-col overflow-hidden px-6 py-4">
+      {/* Premium Glass Chat Container */}
+      <div className="flex-1 flex flex-col glass-surface rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+        {/* Chat Header */}
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/5 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center cursor-pointer hover:bg-white/10 hover:scale-105 active:scale-95 transition-all"
+            >
+              <ArrowLeft className="w-5 h-5 text-on-surface" />
+            </button>
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-extrabold text-sm shadow-md">
+              {getInitials(friendName)}
+            </div>
+            <div>
+              <h1 className="text-sm font-bold text-on-surface leading-tight">{friendName}</h1>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] text-emerald-400 font-medium">Online</span>
+              </div>
             </div>
           </div>
-        )}
+          <button className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors cursor-pointer text-on-surface-variant">
+            <MoreVertical className="w-5 h-5" />
+          </button>
+        </div>
 
-        {!initialLoading && messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center text-gray-500">
-            <p className="text-sm text-gray-400 dark:text-gray-500">No messages yet</p>
-            <p className="text-xs mt-1 text-gray-400 dark:text-gray-500">Say hi to {friendName}!</p>
-          </div>
-        )}
+        {/* Messages Area */}
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4 scrollbar-thin">
+          {initialLoading && (
+            <div className="flex flex-col items-center justify-center h-full">
+              <span className="material-symbols-outlined animate-spin text-primary-container text-4xl">progress_activity</span>
+              <p className="text-xs text-on-surface-variant mt-3">Loading messages...</p>
+            </div>
+          )}
 
-        {!initialLoading && messages.length > 0 && (
-          <div className="space-y-2">
-            {messages.map((message: any, idx: number) => {
-              const isMine = message.senderId === user?.id;
-              const showDate = idx === 0 ||
-                getDateLabel(message.createdAt) !== getDateLabel(messages[idx - 1].createdAt);
+          {!initialLoading && messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 text-on-surface-variant/40">
+                <span className="material-symbols-outlined text-3xl">chat_bubble</span>
+              </div>
+              <p className="text-sm font-semibold text-on-surface">No messages yet</p>
+              <p className="text-xs mt-1 text-on-surface-variant">Say hi to {friendName} to start the conversation!</p>
+            </div>
+          )}
 
-              return (
-                <div key={message.id}>
-                  {showDate && (
-                    <div className="flex justify-center my-3">
-                      <span className="text-[10px] text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
-                        {getDateLabel(message.createdAt)}
-                      </span>
-                    </div>
-                  )}
-                  <div className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                    <div
-                      className={`max-w-[75%] rounded-2xl px-3.5 py-2 ${
-                        isMine
-                          ? 'bg-[var(--fun-color-primary)] text-white rounded-br-md'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md'
-                      }`}
-                    >
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
-                      <p className={`mt-0.5 text-[10px] text-right ${isMine ? 'text-blue-200' : 'text-gray-400 dark:text-gray-500'}`}>
-                        {formatTime(message.createdAt)}
-                      </p>
+          {!initialLoading && messages.length > 0 && (
+            <div className="space-y-4">
+              {messages.map((message: any, idx: number) => {
+                const isMine = message.senderId === user?.id;
+                const showDate = idx === 0 ||
+                  getDateLabel(message.createdAt) !== getDateLabel(messages[idx - 1].createdAt);
+
+                return (
+                  <div key={message.id} className="space-y-2">
+                    {showDate && (
+                      <div className="flex justify-center my-4">
+                        <span className="text-[10px] font-semibold text-on-surface-variant/90 bg-white/5 border border-white/5 px-3 py-1.5 rounded-full backdrop-blur-md">
+                          {getDateLabel(message.createdAt)}
+                        </span>
+                      </div>
+                    )}
+                    <div className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                      <div
+                        className={`max-w-[70%] rounded-2xl px-4 py-3 shadow-lg transition-all duration-300 ${
+                          isMine
+                            ? 'bg-primary-container text-on-primary-container border border-primary-container/10 rounded-tr-none'
+                            : 'glass-surface text-on-surface border border-white/5 rounded-tl-none'
+                        }`}
+                      >
+                        <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
+                        <div className="flex justify-end items-center gap-1 mt-1.5">
+                          <span className={`text-[9px] font-medium ${isMine ? 'text-primary-container/80' : 'text-on-surface-variant/60'}`}>
+                            {formatTime(message.createdAt)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-            <div ref={chatEndRef} />
-          </div>
-        )}
-      </div>
+                );
+              })}
+              <div ref={chatEndRef} />
+            </div>
+          )}
+        </div>
 
-      {/* Message Input */}
-      <div className="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 px-4 py-3">
-        <div className="flex gap-2 items-center">
-          <input
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            className="flex-1 rounded-full bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-          />
-          <button
-            onClick={handleSendMessage}
-            disabled={!draft.trim() || sending}
-            className={`h-10 w-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
-              draft.trim() && !sending
-                ? 'bg-[var(--fun-color-primary)] text-white active:scale-90'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
-            }`}
-          >
-            {sending ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </button>
+        {/* Message Input */}
+        <div className="p-4 border-t border-white/10 bg-white/5 backdrop-blur-md">
+          <div className="flex gap-3 items-center">
+            <input
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your message here..."
+              className="flex-1 rounded-xl bg-surface-container border border-outline/30 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary-container/50 focus:border-transparent transition-all text-on-surface placeholder-on-surface-variant/40"
+            />
+            <button
+              onClick={handleSendMessage}
+              disabled={!draft.trim() || sending}
+              className={`h-11 w-11 rounded-xl flex items-center justify-center transition-all cursor-pointer shadow-lg ${
+                draft.trim() && !sending
+                  ? 'bg-primary-container text-white active:scale-95 hover:bg-inverse-primary hover:scale-105'
+                  : 'bg-white/5 text-on-surface-variant/40 border border-white/5 cursor-not-allowed'
+              }`}
+            >
+              {sending ? (
+                <span className="material-symbols-outlined animate-spin text-sm text-white">progress_activity</span>
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

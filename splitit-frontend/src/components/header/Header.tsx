@@ -40,7 +40,7 @@ function Header(){
             }
           </button>
           <button
-              onClick={() => navigate('/notification')}
+              onClick={() => navigate('/friend-requests')}
               className="relative h-[31px] w-[31px] bg-[var(--color-gray)] dark:bg-gray-700 flex justify-center items-center rounded-full cursor-pointer">
             <Bell className="text-black dark:text-white w-4 h-4" strokeWidth={2.5}/>
             {notificationCount > 0 && (

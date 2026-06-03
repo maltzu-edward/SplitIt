@@ -1,8 +1,23 @@
-import { Controller, Post, Body, Res, Get, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Res, Get, Req, UnauthorizedException, Patch, Param, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import type { Request, Response } from 'express'; // Use 'import type' to avoid TS1272 errors
 import * as jwt from 'jsonwebtoken';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto } from './dto/create-auth.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
+
+const profileStorage = diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = join(process.cwd(), 'uploads');
+    if (!existsSync(uploadPath)) mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `profile-${Date.now()}${extname(file.originalname)}`);
+  },
+});
 
 @Controller('auth')
 export class AuthController {
@@ -75,5 +90,25 @@ export class AuthController {
     response.clearCookie('token');
     response.clearCookie('userId');
     return { message: 'Logout successful' };
+  }
+
+  @Patch('profile/:userId')
+  @UseInterceptors(FileInterceptor('profileImage', {
+    storage: profileStorage,
+    fileFilter: (req, file, cb) => {
+      if (!file.mimetype.startsWith('image/')) {
+        return cb(new BadRequestException('Only image files are allowed'), false);
+      }
+      cb(null, true);
+    },
+    limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB
+  }))
+  async updateProfile(
+    @Param('userId') userId: string,
+    @Body('name') name: string,
+    @UploadedFile() file: any,
+  ) {
+    const profileImagePath = file ? `/uploads/${file.filename}` : undefined;
+    return this.authService.updateProfile(userId, name, profileImagePath);
   }
 }

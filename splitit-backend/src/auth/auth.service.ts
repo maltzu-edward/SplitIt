@@ -74,4 +74,25 @@ export class AuthService {
     const { password, ...result } = user;
     return { user: result };
   }
+
+  async updateProfile(userId: string, name?: string, profileImage?: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found.');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(name ? { name } : {}),
+        ...(profileImage ? { profileImage } : {}),
+      },
+    });
+
+    const { password, ...result } = updatedUser;
+    return { user: result };
+  }
 }

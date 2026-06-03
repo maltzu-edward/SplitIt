@@ -86,6 +86,41 @@ const useUserAuth = create<UserAuthType>((set, get) => ({
       { withCredentials: true }
     );
   },
+
+  updateProfile: async (userId, name, profileImage) => {
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      if (profileImage) {
+        formData.append("profileImage", profileImage);
+      }
+
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = {
+        "Content-Type": "multipart/form-data",
+      };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const res = await axios.patch(
+        `${API_BASE_URL}/auth/profile/${userId}`,
+        formData,
+        {
+          withCredentials: true,
+          headers,
+        }
+      );
+
+      const { user } = res.data;
+      if (user) {
+        set({ user });
+      }
+    } catch (error) {
+      console.error("Failed to update profile", error);
+      throw error;
+    }
+  },
 }));
 
 export default useUserAuth;

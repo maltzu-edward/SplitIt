@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import useExpenseStore from "../store/ExpenseStore";
 import useUserAuth from "../store/UserAuthStore";
 import useFriendStore from "../store/FriendStore";
-import BottomNav from "../components/navigation/BottomNav";
 import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
@@ -261,55 +260,55 @@ function GroupDetail() {
   );
 
   if (groupLoading) return (
-    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex items-center justify-center">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen flex items-center justify-center">
+      <span className="material-symbols-outlined animate-spin text-primary-container text-4xl">progress_activity</span>
     </div>
   );
 
   if (!group) return (
-    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex flex-col items-center justify-center gap-4">
-      <p className="text-lg font-bold dark:text-white">Group not found</p>
-      <button onClick={() => navigate("/expense")} className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold">Go Back</button>
+    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen flex flex-col items-center justify-center gap-4">
+      <p className="text-lg font-bold text-on-surface">Group not found</p>
+      <button onClick={() => navigate("/expense")} className="px-6 py-3 bg-primary-container text-on-primary-container hover:bg-inverse-primary rounded-xl font-bold transition">Go Back</button>
     </div>
   );
 
   return (
-    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
+    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen flex flex-col">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700 px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate("/expense")} className="w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-          <ArrowLeft className="w-5 h-5 text-gray-700 dark:text-gray-200" />
+      <div className="glass-surface p-4 rounded-xl mb-6 flex items-center gap-3 shadow-xl">
+        <button onClick={() => navigate("/expense")} className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center cursor-pointer hover:bg-white/10 transition-colors">
+          <ArrowLeft className="w-5 h-5 text-on-surface" />
         </button>
-        <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shrink-0">
+        <div className="w-10 h-10 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0">
           <img src={group.groupImage || "/GroupLogo.png"} alt="Group" className="w-full h-full object-cover" />
         </div>
-        <div className="min-w-0">
-          <h1 className="text-lg font-bold text-gray-900 dark:text-white truncate">{group.name}</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{memberCount} members</p>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-lg font-bold text-on-surface truncate">{group.name}</h1>
+          <p className="text-xs text-on-surface-variant">{memberCount} members</p>
         </div>
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto pb-36">
+      <div className="flex-1 pb-36">
         {/* Members */}
-        <div className="px-4 pt-4 pb-2">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Members</p>
+        <div className="px-1 pt-4 pb-2 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Members</p>
             <button
               onClick={() => { setShowAddMemberModal(true); setSelectedNewMembers([]); setMemberSearch(""); }}
-              className="flex items-center gap-1 text-xs font-bold text-blue-600 cursor-pointer"
+              className="flex items-center gap-1 text-xs font-bold text-primary-container hover:underline cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" /> Add
             </button>
           </div>
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1">
             {group.members.map((m, i) => (
               <div key={m.id} className="flex flex-col items-center gap-1 shrink-0">
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold"
                   style={{ backgroundColor: COLORS[i % COLORS.length] }}>
                   {getInitials(m.user.name)}
                 </div>
-                <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium max-w-[56px] truncate">
+                <p className="text-[10px] text-on-surface-variant font-medium max-w-[56px] truncate">
                   {m.user.id === user?.id ? "You" : m.user.name.split(" ")[0]}
                 </p>
               </div>
@@ -319,36 +318,36 @@ function GroupDetail() {
 
         {/* People Who Owe You */}
         {peopleOweYouItems.length > 0 && (
-          <div className="px-4 pt-3">
-            <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">People Who Owe You</p>
+          <div className="px-1 pt-3 mb-6">
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">People Who Owe You</p>
             {peopleOweYouItems.map((item) => (
-              <div key={item.splitId} className="flex items-center justify-between p-3 mb-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+              <div key={item.splitId} className="flex items-center justify-between p-4 mb-3 glass-surface rounded-xl shadow-xl">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${item.isValidated ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${item.isValidated ? 'bg-success/10' : 'bg-error/10'}`}>
                     {item.isValidated
-                      ? <CheckCircle className="w-5 h-5 text-green-500" />
-                      : <User className="w-5 h-5 text-red-400" />
+                      ? <CheckCircle className="w-5 h-5 text-success" />
+                      : <User className="w-5 h-5 text-error" />
                     }
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white">{item.personName}</p>
-                    {item.isValidated && <p className="text-[11px] text-green-600 font-medium">Settled ✓</p>}
-                    {!item.isValidated && item.isPaid && <p className="text-[11px] text-blue-500 font-medium">Has paid · Waiting validation</p>}
-                    {!item.isValidated && !item.isPaid && <p className="text-[11px] text-gray-400 dark:text-gray-500">Hasn't paid yet</p>}
+                    <p className="text-sm font-bold text-on-surface">{item.personName}</p>
+                    {item.isValidated && <p className="text-[11px] text-success font-medium">Settled ✓</p>}
+                    {!item.isValidated && item.isPaid && <p className="text-[11px] text-primary-container font-medium">Has paid · Waiting validation</p>}
+                    {!item.isValidated && !item.isPaid && <p className="text-[11px] text-on-surface-variant">Has't paid yet</p>}
                   </div>
                 </div>
 
                 <div className="flex flex-col items-end gap-1">
-                  <p className={`text-sm font-bold ${item.isValidated ? 'text-green-500' : 'text-red-500'}`}>
+                  <p className={`text-sm font-bold ${item.isValidated ? 'text-success' : 'text-error'}`}>
                     {formatCurrency(item.amount)}
                   </p>
-                  <p className={`text-[10px] font-semibold ${item.isValidated ? 'text-green-400' : 'text-red-400'}`}>
+                  <p className={`text-[10px] font-semibold ${item.isValidated ? 'text-success' : 'text-error'}`}>
                     {item.isValidated ? 'Settled' : 'Owes You'}
                   </p>
                   {item.isPaid && !item.isValidated && (
                     <button
                       onClick={() => openValidationPage(item)}
-                      className="px-3 py-1 bg-green-500 text-white text-[11px] font-bold rounded-lg active:brightness-90 cursor-pointer mt-0.5"
+                      className="px-3 py-1 bg-success hover:bg-success/80 text-white text-[11px] font-bold rounded-lg cursor-pointer mt-0.5"
                     >
                       Validate
                     </button>
@@ -360,17 +359,21 @@ function GroupDetail() {
         )}
 
         {/* Your Expense */}
-        <div className="px-4 pt-3">
-          <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Your Expense</p>
-          {expenseLoading && <p className="text-center text-sm text-gray-500 dark:text-gray-400">Loading...</p>}
+        <div className="px-1 pt-3">
+          <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Your Expense</p>
+          {expenseLoading && (
+            <div className="flex justify-center py-6">
+              <span className="material-symbols-outlined animate-spin text-primary-container text-2xl">progress_activity</span>
+            </div>
+          )}
 
           {!expenseLoading && expenses.length === 0 && (
-            <div className="flex flex-col items-center py-12">
-              <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-3">
-                <Receipt className="w-7 h-7 text-blue-400" />
+            <div className="flex flex-col items-center py-12 glass-surface border-white/10 rounded-xl">
+              <div className="w-14 h-14 bg-primary-container/10 rounded-full flex items-center justify-center mb-3">
+                <Receipt className="w-7 h-7 text-primary-container" />
               </div>
-              <p className="text-sm font-bold text-gray-800 dark:text-white">No expenses yet</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Tap + to add a bill</p>
+              <p className="text-sm font-bold text-on-surface">No expenses yet</p>
+              <p className="text-xs text-on-surface-variant mt-1">Tap + to add a bill</p>
             </div>
           )}
 
@@ -387,37 +390,35 @@ function GroupDetail() {
               const isValidated = mySplit?.isValidated ?? false;
               const splitCount = exp.splits?.filter((s: any) => s.amount > 0).length || memberCount;
 
-              const cardClass = isPayer
-                ? 'bg-green-50 border-green-300 dark:bg-green-900/20 dark:border-green-800'
-                : isValidated
-                  ? 'bg-green-50 border-green-300 dark:bg-green-900/20 dark:border-green-800'
-                  : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800';
+              const cardClass = isPayer || isValidated
+                ? 'border-success/30 bg-success/5'
+                : 'border-error/30 bg-error/5';
 
               return (
-                <div key={exp.id} className={`rounded-2xl p-4 mb-3 border-2 ${cardClass}`}>
+                <div key={exp.id} className={`glass-surface rounded-xl p-4 mb-3 border ${cardClass} shadow-xl`}>
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-xl shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xl shrink-0 border border-white/10">
                       🧾
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{exp.title}</p>
-                      <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-1">{formatDate(exp.createdAt)}</p>
-                      <p className="text-[11px] font-semibold text-gray-700 dark:text-gray-300">
+                      <p className="text-sm font-bold text-on-surface truncate">{exp.title}</p>
+                      <p className="text-[10px] text-on-surface-variant mb-1">{formatDate(exp.createdAt)}</p>
+                      <p className="text-[11px] font-semibold text-on-surface-variant">
                         {isPayer ? "You" : exp.payer?.name} Paid
                       </p>
-                      <p className="text-[11px] text-gray-500 dark:text-gray-400">Split Among {splitCount} People.</p>
+                      <p className="text-[11px] text-on-surface-variant opacity-75">Split Among {splitCount} People.</p>
                     </div>
 
                     <div className="flex flex-col items-end gap-1.5 shrink-0">
-                      <p className="text-base font-bold text-gray-900 dark:text-white">{formatCurrency(exp.amount)}</p>
+                      <p className="text-base font-bold text-on-surface">{formatCurrency(exp.amount)}</p>
 
                       {!isPayer && mySplit && (
                         isValidated
-                          ? <p className="text-[11px] font-bold text-green-600">Settled ✓</p>
+                          ? <p className="text-[11px] font-bold text-success">Settled ✓</p>
                           : isPaid
-                            ? <p className="text-[10px] font-semibold text-orange-500">Waiting...</p>
-                            : <p className="text-[11px] font-bold text-red-500">
+                            ? <p className="text-[10px] font-semibold text-primary-container animate-pulse">Waiting...</p>
+                            : <p className="text-[11px] font-bold text-error">
                                 You Owe {formatCurrency(mySplit.amount)}
                               </p>
                       )}
@@ -425,7 +426,7 @@ function GroupDetail() {
                       {!isPayer && mySplit && !isPaid && !isValidated && (
                         <button
                           onClick={() => openProofModal(mySplit.id)}
-                          className="px-4 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-xl active:brightness-90 cursor-pointer whitespace-nowrap"
+                          className="px-4 py-1.5 bg-primary-container hover:bg-inverse-primary text-on-primary-container text-xs font-bold rounded-xl cursor-pointer whitespace-nowrap btn-spring"
                         >
                           Pay
                         </button>
@@ -438,11 +439,9 @@ function GroupDetail() {
         </div>
       </div>
 
-      <BottomNav />
-
       {/* FAB */}
-      <div className="fixed bottom-20 right-6 z-40">
-        <button onClick={openAddModal} className="bg-[var(--fun-color-primary)] rounded-full w-14 h-14 flex justify-center items-center shadow-lg active:scale-90 transition-transform cursor-pointer">
+      <div className="fixed bottom-6 right-6 z-40">
+        <button onClick={openAddModal} className="bg-primary-container hover:bg-inverse-primary rounded-full w-14 h-14 flex justify-center items-center shadow-lg active:scale-90 transition-transform cursor-pointer">
           <Plus className="text-white w-8 h-8" />
         </button>
       </div>
@@ -668,7 +667,7 @@ function GroupDetail() {
               <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-3">
                 <UserPlus className="w-6 h-6 text-blue-600" />
               </div>
-              <h2 className="text-xl font-bold dark:text-white">Add Members</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add Members</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Add friends to "{group.name}"</p>
             </div>
             <div className="mb-4">

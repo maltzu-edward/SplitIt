@@ -1,13 +1,10 @@
-import { ChevronRight, X, Plus, User, Check } from "lucide-react";
+import { X, Plus, User, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import HeaderTagline from "../components/header/HeaderTagline";
-import Header from "../components/header/Header";
 import useGroupStore from "../store/GroupStore";
 import useUserAuth from "../store/UserAuthStore";
 import useFriendStore from "../store/FriendStore";
 import useExpenseStore from "../store/ExpenseStore";
-import BottomNav from "../components/navigation/BottomNav";
 
 const GROUP_CATEGORIES = [
   { id: 'food', label: 'Food', image: '/food.svg' },
@@ -17,7 +14,6 @@ const GROUP_CATEGORIES = [
 ];
 
 function ExpenseMain() {
-  const [search, setSearch] = useState<string>("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [modalStep, setModalStep] = useState<1 | 2>(1);
   const [friendSearch, setFriendSearch] = useState<string>("");
@@ -27,43 +23,47 @@ function ExpenseMain() {
   const [selectedCategory, setSelectedCategory] = useState(GROUP_CATEGORIES[0].id);
   const [leaveConfirm, setLeaveConfirm] = useState<{ groupId: string; groupName: string } | null>(null);
   const [leaveLoading, setLeaveLoading] = useState(false);
+  const [showOcrModal, setShowOcrModal] = useState(false);
 
   const navigate = useNavigate();
   const user = useUserAuth((s) => s.user);
   const { groups, fetchGroups, createGroup, leaveGroup, loading } = useGroupStore();
   const { acceptedFriends, fetchFriends } = useFriendStore();
-  const { summary, fetchUserSummary } = useExpenseStore();
+  const { summary, fetchUserSummary, recentActivities, fetchRecentActivities, searchQuery } = useExpenseStore();
 
   useEffect(() => {
     if (user) {
       fetchGroups(user.id);
       fetchFriends(user.id);
       fetchUserSummary(user.id);
+      fetchRecentActivities(user.id);
     }
-  }, [user, fetchGroups, fetchFriends, fetchUserSummary]);
+  }, [user, fetchGroups, fetchFriends, fetchUserSummary, fetchRecentActivities]);
 
-  const formatCurrency = (n: number) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n);
+  const formatCurrency = (n: number) => {
+    const formatted = new Intl.NumberFormat("id-ID", { minimumFractionDigits: 0 }).format(n);
+    return `Rp. ${formatted}`;
+  };
 
   const handleCreateGroup = async () => {
     if (!newGroupName || !user || selectedMemberIds.length === 0) return;
     const selectedCategoryData = GROUP_CATEGORIES.find((item) => item.id === selectedCategory);
     try {
-        await createGroup(
-            newGroupName,
-            selectedMemberIds,
-            user.id,
-            selectedCategoryData?.image,
-        );
-        setShowCreateModal(false);
-        setFriendSearch("");
-        setNewGroupName("");
-        setNewGroupDesc("");
-        setSelectedMemberIds([]);
-        setSelectedCategory(GROUP_CATEGORIES[0].id);
-        fetchGroups(user.id);
+      await createGroup(
+        newGroupName,
+        selectedMemberIds,
+        user.id,
+        selectedCategoryData?.image,
+      );
+      setShowCreateModal(false);
+      setFriendSearch("");
+      setNewGroupName("");
+      setNewGroupDesc("");
+      setSelectedMemberIds([]);
+      setSelectedCategory(GROUP_CATEGORIES[0].id);
+      fetchGroups(user.id);
     } catch (error) {
-        console.error("Failed to create group", error);
+      console.error("Failed to create group", error);
     }
   };
 
@@ -79,144 +79,296 @@ function ExpenseMain() {
     return MEMBER_COLORS[index % MEMBER_COLORS.length];
   };
 
-  const filteredGroups = groups.filter(g => g.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredGroups = groups.filter(g => g.name.toLowerCase().includes(searchQuery.toLowerCase()));
   const filteredFriends = acceptedFriends.filter((friend) =>
     friend.friend.name.toLowerCase().includes(friendSearch.toLowerCase()) ||
     friend.friend.email.toLowerCase().includes(friendSearch.toLowerCase())
   );
 
+  const getActivityStyle = (type: string) => {
+    switch (type) {
+      case 'MESSAGE':
+        return {
+          icon: 'chat',
+          iconColor: 'text-indigo-400',
+          bgColor: 'bg-indigo-500/10 border-indigo-500/20',
+        };
+      case 'SETTLEMENT_APPROVED':
+      case 'SETTLEMENT_APPROVED_BY_YOU':
+        return {
+          icon: 'check_circle',
+          iconColor: 'text-emerald-400',
+          bgColor: 'bg-emerald-500/10 border-emerald-500/20',
+        };
+      case 'SETTLEMENT_SENT':
+      case 'SETTLEMENT_RECEIVED':
+        return {
+          icon: 'payments',
+          iconColor: 'text-teal-400',
+          bgColor: 'bg-teal-500/10 border-teal-500/20',
+        };
+      case 'EXPENSE_ADDED_BY_YOU':
+      case 'EXPENSE_ADDED':
+        return {
+          icon: 'receipt_long',
+          iconColor: 'text-primary-container',
+          bgColor: 'bg-primary-container/10 border-primary-container/20',
+        };
+      case 'FRIEND_ACCEPTED':
+        return {
+          icon: 'handshake',
+          iconColor: 'text-purple-400',
+          bgColor: 'bg-purple-500/10 border-purple-500/20',
+        };
+      case 'FRIEND_SENT':
+      case 'FRIEND_RECEIVED':
+        return {
+          icon: 'person_add',
+          iconColor: 'text-amber-400',
+          bgColor: 'bg-amber-500/10 border-amber-500/20',
+        };
+      default:
+        return {
+          icon: 'notifications',
+          iconColor: 'text-on-surface-variant',
+          bgColor: 'bg-white/5 border-white/10',
+        };
+    }
+  };
+
+  const getActivityTime = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs} hr ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  };
+
   return (
-    <div className="h-screen w-screen bg-white dark:bg-gray-900 flex flex-col overflow-hidden">
-      <Header />
+    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen">
+      {/* Dashboard Header */}
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h2 className="font-headline-lg text-headline-lg text-on-surface">Financial Overview</h2>
+          <p className="text-on-surface-variant font-body-md">Real-time status across all active groups.</p>
+        </div>
+      </div>
 
-      <HeaderTagline
-        title="Your Group"
-        subtitle="Track shared expenses with friends"
-        onChange={setSearch}
-        value={search}
-        placeholder="Search Group"
-      />
+      {/* Financial Summary Widgets (Bento Style) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-12">
+        {/* You are Owed widget */}
+        <div className="glass-floating p-6 rounded-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 text-primary-container">
+            <span className="material-symbols-outlined text-[64px]">trending_up</span>
+          </div>
+          <p className="text-label-md text-on-surface-variant mb-1">Total You are Owed</p>
+          <h3 className="font-headline-xl text-headline-xl text-primary-container font-black">
+            {formatCurrency(summary?.totalOwe || 0)}
+          </h3>
+          <div className="mt-4 flex items-center gap-2 text-primary-container font-label-sm">
+            <span className="material-symbols-outlined text-label-sm">arrow_upward</span>
+            <span>Total expense owed to you</span>
+          </div>
+        </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-24 mt-4">
-        {summary && (
-          <div className="grid grid-cols-2 gap-3 mb-3 p-4 rounded-xl to-indigo-50/30">
-            <div className="flex flex-col bg-white/80 dark:bg-gray-800/80 p-3.5 rounded-xl shadow-sm transition-all active:scale-[0.99] hover:bg-white dark:hover:bg-gray-800 duration-200">
-              <span className="text-[10px] font-bold text-red-400 tracking-wider uppercase">You Owe</span>
-              <span className="text-base font-extrabold text-red-500 mt-1 font-mono">
-                {formatCurrency(summary.totalOwed)}
-              </span>
+        {/* You Owe widget */}
+        <div className="glass-floating p-6 rounded-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10 text-error">
+            <span className="material-symbols-outlined text-[64px]">trending_down</span>
+          </div>
+          <p className="text-label-md text-on-surface-variant mb-1">Total You Owe</p>
+          <h3 className="font-headline-xl text-headline-xl text-error font-black">
+            {formatCurrency(summary?.totalOwed || 0)}
+          </h3>
+          <div className="mt-4 flex items-center gap-2 text-error font-label-sm">
+            <span className="material-symbols-outlined text-label-sm">arrow_downward</span>
+            <span>Total expense you owe</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+        {/* Active Groups List */}
+        <div className="lg:col-span-8 space-y-gutter">
+          <div className="flex justify-between items-center">
+            <h4 className="font-headline-md text-headline-md text-on-surface">Active Groups</h4>
+          </div>
+
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <span className="material-symbols-outlined animate-spin text-primary-container text-4xl">progress_activity</span>
             </div>
-            <div className="flex flex-col bg-white/80 dark:bg-gray-800/80 p-3.5 rounded-xl shadow-sm transition-all active:scale-[0.99] hover:bg-white dark:hover:bg-gray-800 duration-200">
-              <span className="text-[10px] font-bold text-green-400 tracking-wider uppercase">Owed to You</span>
-              <span className="text-base font-extrabold text-green-600 mt-1 font-mono">
-                {formatCurrency(summary.totalOwe)}
-              </span>
+          )}
+
+          {!loading && filteredGroups.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 bg-white/5 border border-white/10 rounded-2xl">
+              <span className="material-symbols-outlined text-6xl text-on-surface-variant/40 mb-4">group</span>
+              <p className="text-base font-bold text-on-surface">
+                {groups.length === 0 && searchQuery.trim() === "" ? "You don't have any groups yet." : "No groups match your search."}
+              </p>
+              <p className="text-sm text-on-surface-variant mt-1">
+                {groups.length === 0 && searchQuery.trim() === "" ? "Create a new group to get started" : "Try typing another name."}
+              </p>
             </div>
-          </div>
-        )}
+          )}
 
-        {loading && (
-          <div className="flex items-center justify-center py-10">
-            <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          </div>
-        )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {!loading && filteredGroups.map((group, index) => {
+              const groupImageSrc = group.groupImage || '/GroupLogo.png';
+              const totalMembers = group.members?.length || 0;
+              const displayedMembers = group.members?.slice(0, 3) || [];
+              const icon = index % 2 === 0 ? "apartment" : "flight_takeoff";
+              const statusText = index % 2 === 0 ? "Settled" : "Action Needed";
+              const statusBg = index % 2 === 0 ? "bg-primary-container/10 text-primary-container" : "bg-error/10 text-error";
 
-        {!loading && filteredGroups.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full mt-[-50px]">
-            <img
-              src="/GroupLogo.png"
-              alt="Group Logo"
-              className="w-32 h-32 object-contain"
-            />
-            <p className="text-base font-bold text-black dark:text-white mt-4">
-              {groups.length === 0 && search.trim() === "" ? "You don't have any groups yet." : "No groups match your search."}
-            </p>
-            <p className="text-sm text-gray-400 dark:text-gray-500">
-              {groups.length === 0 && search.trim() === "" ? "Join or create one to get started" : "Try another group name."}
-            </p>
-          </div>
-        )}
-
-        {!loading && filteredGroups.map((group) => {
-          const groupImageSrc = group.groupImage || '/GroupLogo.png';
-          const totalMembers = (group as any)._count?.members || group.members?.length || 0;
-          const displayedMembers = group.members?.slice(0, 3) || [];
-
-          return (
-            <div
-              key={group.id}
-              className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 w-full p-4 mb-3 flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              onClick={() => navigate(`/group/${group.id}`)}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 shrink-0">
-                  <img
-                    src={groupImageSrc}
-                    alt="Group Icon"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-gray-900 dark:text-white">{group.name}</p>
-                  <div className="flex items-center mt-1 -space-x-1.5">
-                    {displayedMembers.map((member, index) => (
+              return (
+                <div
+                  key={group.id}
+                  className="glass-surface p-6 rounded-xl hover:border-primary-container/40 transition-all duration-300 cursor-pointer group shadow-xl relative"
+                  onClick={() => navigate(`/group/${group.id}`)}
+                >
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-12 h-12 rounded-lg bg-primary-container flex items-center justify-center overflow-hidden">
+                      {group.groupImage ? (
+                        <img src={groupImageSrc} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="material-symbols-outlined text-on-primary-container">{icon}</span>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full ${statusBg} text-label-sm font-bold`}>{statusText}</span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLeaveConfirm({ groupId: group.id, groupName: group.name });
+                        }}
+                        className="p-1 text-xs text-error hover:bg-error/10 rounded-lg transition"
+                      >
+                        <span className="material-symbols-outlined text-sm">logout</span>
+                      </button>
+                    </div>
+                  </div>
+                  <h5 className="font-headline-md text-headline-md mb-1 text-on-surface">{group.name}</h5>
+                  <p className="text-on-surface-variant font-label-sm mb-6">{totalMembers} Members</p>
+                  
+                  <div className="flex -space-x-3 mb-6">
+                    {displayedMembers.map((member, idx) => (
                       <div
-                        key={`${group.id}-member-${index}`}
-                        className="w-5 h-5 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-[8px] font-bold text-white"
-                        style={{ backgroundColor: getMemberColor(index) }}
+                        key={`${group.id}-member-${idx}`}
+                        className="w-10 h-10 rounded-full border-2 border-surface flex items-center justify-center text-xs font-bold text-white"
+                        style={{ backgroundColor: getMemberColor(idx) }}
+                        title={member?.user?.name}
                       >
                         {getInitials(member?.user?.name || '')}
                       </div>
                     ))}
                     {totalMembers > 3 && (
-                      <div className="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 border-2 border-white dark:border-gray-800 flex items-center justify-center text-[8px] font-bold text-gray-700 dark:text-gray-200">
+                      <div className="w-10 h-10 rounded-full border-2 border-surface bg-surface-container-high flex items-center justify-center text-xs font-bold text-on-surface-variant">
                         +{totalMembers - 3}
                       </div>
                     )}
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium ml-3">
-                      {totalMembers} Members
-                    </span>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/5 flex justify-between items-end">
+                    <span className="text-label-sm text-on-surface-variant">Click to view splits</span>
+                    <span className="material-symbols-outlined text-primary-container group-hover:translate-x-1 transition-transform">arrow_forward</span>
                   </div>
                 </div>
-              </div>
+              );
+            })}
+          </div>
+        </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setLeaveConfirm({ groupId: group.id, groupName: group.name });
-                  }}
-                  className="px-2.5 py-1 text-xs font-bold text-red-500 border border-red-200 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 cursor-pointer active:bg-red-100 dark:active:bg-red-900/40 transition shrink-0"
-                >
-                  Leave
-                </button>
-                <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500 shrink-0" />
+        {/* Recent Activity Feed */}
+        <div className="lg:col-span-4 glass-surface rounded-2xl p-6 min-h-[380px] flex flex-col">
+          <h4 className="font-headline-md text-headline-md text-on-surface mb-6">Recent Activity</h4>
+          <div className="space-y-6 overflow-y-auto flex-1 max-h-[400px] pr-2 scrollbar-thin">
+            {recentActivities.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-64 text-center text-on-surface-variant">
+                <span className="material-symbols-outlined text-4xl mb-3 text-on-surface-variant/40">history</span>
+                <p className="text-sm font-semibold">No recent activity</p>
+                <p className="text-xs mt-1 max-w-[200px]">Expenses, payments, messages, and friend requests will appear here.</p>
               </div>
-            </div>
-          );
-        })}
-
+            ) : (
+              recentActivities.map((activity: any) => {
+                const style = getActivityStyle(activity.type);
+                return (
+                  <div key={activity.id} className="flex gap-4 items-center">
+                    <div className={`flex-shrink-0 w-10 h-10 rounded-xl border ${style.bgColor} flex items-center justify-center`}>
+                      <span className={`material-symbols-outlined ${style.iconColor} text-body-lg`}>{style.icon}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-label-md text-on-surface font-semibold truncate leading-snug">
+                        {activity.description}
+                      </p>
+                      <p className="text-label-sm text-on-surface-variant mt-0.5">
+                        {activity.title} • {getActivityTime(activity.createdAt)}
+                      </p>
+                    </div>
+                    {activity.amount !== undefined && (
+                      <div className="text-right shrink-0">
+                        <p className={`text-label-md font-bold ${
+                          activity.type.includes('RECEIVED') || activity.type === 'SETTLEMENT_APPROVED_BY_YOU'
+                            ? 'text-emerald-400' 
+                            : activity.type.includes('ADDED_BY_YOU')
+                              ? 'text-red-400'
+                              : 'text-on-surface'
+                        }`}>
+                          {activity.type.includes('RECEIVED') || activity.type === 'SETTLEMENT_APPROVED_BY_YOU' ? '+' : ''}
+                          {formatCurrency(activity.amount)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Create Group Modal — Step 1: Group Name & Description */}
+      {/* Floating Create Group Button */}
+      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2">
+        <span className="text-xs font-bold text-gray-500 dark:text-gray-400">Create a new group</span>
+        <button
+          onClick={() => {
+            setModalStep(1);
+            setFriendSearch("");
+            setNewGroupName("");
+            setNewGroupDesc("");
+            setSelectedMemberIds([]);
+            setSelectedCategory(GROUP_CATEGORIES[0].id);
+            setShowCreateModal(true);
+          }}
+          className="bg-primary-container rounded-full w-12 h-12 flex justify-center items-center shadow-lg active:scale-90 transition-transform cursor-pointer hover:bg-inverse-primary"
+        >
+          <Plus className="text-white w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Create Group Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm p-6 shadow-xl relative">
-            <button onClick={() => setShowCreateModal(false)} className="absolute top-4 right-4 text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="glass-floating rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
+            <button onClick={() => setShowCreateModal(false)} className="absolute top-4 right-4 text-on-surface-variant cursor-pointer hover:text-on-surface transition-colors">
               <X className="w-6 h-6" />
             </button>
 
             <div className="flex flex-col items-center mb-6">
-              <img src="/Groups.png" alt="Group Logo" className="w-14 h-14 mb-3" />
+              <span className="material-symbols-outlined text-4xl text-primary-container mb-3">group</span>
               {modalStep === 1 ? (
                 <>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create New Group</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Start tracking expenses with your friends</p>
+                  <h2 className="text-xl font-bold text-on-surface">Create New Group</h2>
+                  <p className="text-sm text-on-surface-variant text-center">Start tracking expenses with your friends</p>
                 </>
               ) : (
                 <>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add your friends</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center">Use the search bar to find your friends easily</p>
+                  <h2 className="text-xl font-bold text-on-surface">Add your friends</h2>
+                  <p className="text-sm text-on-surface-variant text-center">Select group members</p>
                 </>
               )}
             </div>
@@ -225,43 +377,41 @@ function ExpenseMain() {
               {modalStep === 1 ? (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Group Name</p>
+                    <p className="text-xs font-bold text-on-surface-variant mb-1.5">Group Name</p>
                     <input
                       value={newGroupName}
                       onChange={(e) => setNewGroupName(e.target.value)}
-                      placeholder="e.g., KFC Party part 2"
-                      className="w-full bg-gray-100 dark:bg-gray-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                      placeholder="e.g., Trip to Tokyo"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary-container text-sm text-on-surface placeholder-on-surface-variant/40"
                     />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Group Description</p>
+                    <p className="text-xs font-bold text-on-surface-variant mb-1.5">Group Description</p>
                     <textarea
                       value={newGroupDesc}
                       onChange={(e) => setNewGroupDesc(e.target.value)}
-                      placeholder="e.g. For our trip to KFC Again!"
+                      placeholder="e.g. Travel and food expenses sharing"
                       rows={4}
-                      className="w-full bg-gray-100 dark:bg-gray-700 rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary-container text-sm resize-none text-on-surface placeholder-on-surface-variant/40"
                     />
                   </div>
                 </div>
               ) : (
                 <div>
-                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Search Member</p>
+                  <p className="text-xs font-bold text-on-surface-variant mb-1.5">Search Member</p>
                   <div className="relative">
                     <input
                       value={friendSearch}
                       onChange={(e) => setFriendSearch(e.target.value)}
-                      placeholder="Search Friend"
-                      className="w-full bg-gray-100 dark:bg-gray-700 rounded-lg p-3 pr-9 outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                      placeholder="Search Friend Name"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 pr-9 outline-none focus:ring-2 focus:ring-primary-container text-sm text-on-surface placeholder-on-surface-variant/40"
                     />
-                    <div className="absolute inset-y-0 right-3 flex items-center">
-                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                    </div>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
                   </div>
 
                   {selectedMemberIds.length > 0 && (
                     <div className="mt-3">
-                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Added Friends</p>
+                      <p className="text-xs font-bold text-on-surface-variant mb-1.5">Added Friends</p>
                       <div className="flex items-center gap-1.5">
                         {acceptedFriends
                           .filter((f) => selectedMemberIds.includes(f.friendId))
@@ -279,11 +429,11 @@ function ExpenseMain() {
                   )}
 
                   <div className="mt-3">
-                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5">Add Friends</p>
+                    <p className="text-xs font-bold text-on-surface-variant mb-1.5">Add Friends</p>
                     {acceptedFriends.length === 0 ? (
-                      <p className="text-sm text-red-500">You have no accepted friends yet. Invite friends first.</p>
+                      <p className="text-sm text-error">You have no accepted friends yet.</p>
                     ) : filteredFriends.length === 0 ? (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">No friends match your search.</p>
+                      <p className="text-sm text-on-surface-variant">No friends match your search.</p>
                     ) : (
                       <div className="space-y-2 max-h-40 overflow-y-auto">
                         {filteredFriends.map((friend) => {
@@ -301,21 +451,21 @@ function ExpenseMain() {
                               }}
                               className={`w-full flex items-center justify-between gap-3 p-3 rounded-xl border cursor-pointer transition-colors text-left ${
                                 isSelected
-                                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
-                                  : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600'
+                                  ? 'border-primary-container bg-primary-container/10'
+                                  : 'border-white/10 bg-white/5 hover:bg-white/10'
                               }`}
                             >
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-full bg-red-500 flex items-center justify-center shrink-0">
+                                <div className="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center shrink-0">
                                   <User className="w-4 h-4 text-white" />
                                 </div>
                                 <div>
-                                  <p className="font-bold text-gray-800 dark:text-gray-100 text-sm">{friend.friend.name}</p>
-                                  <p className="text-[11px] text-gray-500 dark:text-gray-400">{friend.friend.email}</p>
+                                  <p className="font-bold text-on-surface text-sm">{friend.friend.name}</p>
+                                  <p className="text-[11px] text-on-surface-variant">{friend.friend.email}</p>
                                 </div>
                               </div>
                               <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                                isSelected ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-600'
+                                isSelected ? 'bg-primary-container' : 'bg-white/10'
                               }`}>
                                 <Check className="w-3.5 h-3.5 text-white" />
                               </div>
@@ -331,7 +481,7 @@ function ExpenseMain() {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 py-3 border border-gray-300 dark:border-gray-600 rounded-xl font-bold text-gray-600 dark:text-gray-300 cursor-pointer active:bg-gray-50 dark:active:bg-gray-700 transition-colors"
+                  className="flex-1 py-3 border border-white/10 rounded-xl font-bold text-on-surface-variant cursor-pointer hover:bg-white/10 transition-colors"
                 >
                   Cancel
                 </button>
@@ -339,7 +489,7 @@ function ExpenseMain() {
                   <button
                     onClick={() => setModalStep(2)}
                     disabled={newGroupName.trim().length === 0}
-                    className="flex-1 py-3 bg-[var(--fun-color-primary)] rounded-xl font-bold text-white active:brightness-90 disabled:opacity-50 cursor-pointer transition-all"
+                    className="flex-1 py-3 bg-primary-container rounded-xl font-bold text-on-primary-container active:brightness-90 disabled:opacity-50 cursor-pointer transition-all"
                   >
                     Next
                   </button>
@@ -347,7 +497,7 @@ function ExpenseMain() {
                   <button
                     onClick={handleCreateGroup}
                     disabled={selectedMemberIds.length === 0}
-                    className="flex-1 py-3 bg-[var(--fun-color-primary)] rounded-xl font-bold text-white active:brightness-90 disabled:opacity-50 cursor-pointer transition-all"
+                    className="flex-1 py-3 bg-primary-container rounded-xl font-bold text-on-primary-container active:brightness-90 disabled:opacity-50 cursor-pointer transition-all"
                   >
                     Create Group
                   </button>
@@ -360,20 +510,20 @@ function ExpenseMain() {
 
       {/* Leave Group Confirmation Modal */}
       {leaveConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-xs p-6 shadow-xl text-center">
-            <div className="w-14 h-14 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <X className="w-7 h-7 text-red-500" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="glass-floating rounded-2xl w-full max-w-xs p-6 shadow-2xl text-center">
+            <div className="w-14 h-14 bg-error/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="material-symbols-outlined text-error text-3xl">logout</span>
             </div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Leave Group?</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-              Are you sure you want to leave <span className="font-bold text-gray-700 dark:text-gray-200">"{leaveConfirm.groupName}"</span>?
+            <h3 className="text-lg font-bold text-on-surface mb-2">Leave Group?</h3>
+            <p className="text-sm text-on-surface-variant mb-6">
+              Are you sure you want to leave <span className="font-bold text-on-surface">"{leaveConfirm.groupName}"</span>?
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setLeaveConfirm(null)}
                 disabled={leaveLoading}
-                className="flex-1 py-3 border border-gray-300 dark:border-gray-600 rounded-xl font-bold text-gray-600 dark:text-gray-300 cursor-pointer active:bg-gray-50 dark:active:bg-gray-700 transition-colors"
+                className="flex-1 py-3 border border-white/10 rounded-xl font-bold text-on-surface-variant cursor-pointer hover:bg-white/10 transition-colors"
               >
                 Cancel
               </button>
@@ -392,7 +542,7 @@ function ExpenseMain() {
                   }
                 }}
                 disabled={leaveLoading}
-                className="flex-1 py-3 bg-red-500 rounded-xl font-bold text-white cursor-pointer active:bg-red-600 disabled:opacity-50 transition-colors"
+                className="flex-1 py-3 bg-error rounded-xl font-bold text-on-error cursor-pointer active:bg-error-container disabled:opacity-50 transition-colors"
               >
                 {leaveLoading ? 'Leaving...' : 'Leave'}
               </button>
@@ -401,28 +551,41 @@ function ExpenseMain() {
         </div>
       )}
 
-      {/* Floating Create Group Button */}
-      <div className="fixed bottom-20 right-4 z-40 flex items-center gap-2">
-        <span className="text-xs font-bold text-gray-500 dark:text-gray-400">Create a new group</span>
-        <button
-            onClick={() => {
-              setModalStep(1);
-              setFriendSearch("");
-              setNewGroupName("");
-              setNewGroupDesc("");
-              setSelectedMemberIds([]);
-              setSelectedCategory(GROUP_CATEGORIES[0].id);
-              setShowCreateModal(true);
-            }}
-            className="bg-[var(--fun-color-primary)] rounded-full w-12 h-12 flex justify-center items-center shadow-lg active:scale-90 transition-transform cursor-pointer"
-        >
-          <Plus className="text-white w-6 h-6" />
-        </button>
-      </div>
-
-      {/* Bottom Navigation */}
-      <BottomNav />
-
+      {/* OCR Scanning Animation Modal */}
+      {showOcrModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm transition-all duration-500">
+          <div className="relative w-full max-w-lg mx-4">
+            <div className="glass-floating rounded-3xl overflow-hidden p-8 flex flex-col items-center">
+              <div className="relative w-64 h-80 bg-surface-container rounded-xl border border-primary-container/30 overflow-hidden mb-6 flex items-center justify-center">
+                {/* Scanning Overlay */}
+                <div className="scan-line absolute w-full left-0 z-20"></div>
+                <div className="absolute inset-0 bg-primary-container/5 z-10"></div>
+                <span className="material-symbols-outlined text-[80px] text-primary-container/40">document_scanner</span>
+                {/* Simulating text detection points */}
+                <div className="absolute top-1/4 left-1/4 w-12 h-2 bg-primary-container/40 rounded-full animate-pulse"></div>
+                <div className="absolute top-1/3 right-1/3 w-16 h-2 bg-primary-container/20 rounded-full animate-pulse delay-75"></div>
+                <div className="absolute bottom-1/4 left-1/3 w-20 h-2 bg-primary-container/30 rounded-full animate-pulse delay-150"></div>
+              </div>
+              <h3 className="font-headline-md text-headline-md text-primary-container mb-2">Analyzing Receipt</h3>
+              <p className="text-on-surface-variant text-center mb-8">AI is extracting line items and taxes...</p>
+              <div className="flex gap-4 w-full">
+                <button
+                  className="flex-1 py-3 rounded-xl bg-white/5 text-on-surface-variant font-label-md border border-white/10 hover:bg-white/10 transition-colors"
+                  onClick={() => setShowOcrModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="flex-1 py-3 rounded-xl bg-primary-container text-on-primary-container font-label-md shadow-lg shadow-primary-container/20 hover:bg-inverse-primary"
+                  onClick={() => setShowOcrModal(false)}
+                >
+                  Review Splits
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
