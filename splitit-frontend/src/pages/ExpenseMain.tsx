@@ -156,27 +156,27 @@ function ExpenseMain() {
       </div>
 
       {/* Flat Financial Metrics Row (Centered and Big) */}
-      <div className="flex justify-center items-center gap-12 text-on-surface py-6 mb-8 bg-transparent">
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-6 sm:gap-12 text-on-surface py-4 sm:py-6 mb-8 bg-transparent">
         {/* You are Owed */}
         <div className="flex items-center gap-4">
           <span className="material-symbols-outlined text-primary-container text-4xl shrink-0">arrow_upward</span>
           <div>
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Total You are Owed</p>
-            <h3 className="text-3xl font-black text-primary-container">
+            <h3 className="text-2xl sm:text-3xl font-black text-primary-container">
               {formatCurrency(summary?.totalOwe || 0)}
             </h3>
           </div>
         </div>
 
         {/* Separator */}
-        <div className="h-12 w-[1px] bg-white/20" />
+        <div className="hidden sm:block h-12 w-[1px] bg-white/20" />
 
         {/* You Owe */}
         <div className="flex items-center gap-4">
           <span className="material-symbols-outlined text-error text-4xl shrink-0">arrow_downward</span>
           <div>
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Total You Owe</p>
-            <h3 className="text-3xl font-black text-error">
+            <h3 className="text-2xl sm:text-3xl font-black text-error">
               {formatCurrency(summary?.totalOwed || 0)}
             </h3>
           </div>
@@ -213,10 +213,10 @@ function ExpenseMain() {
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
               {/* Column Headers */}
               <div className="grid grid-cols-12 gap-2 pb-3 border-b border-white/10 text-xs font-bold text-on-surface-variant/60 uppercase tracking-wider px-2">
-                <div className="col-span-4">Group Name</div>
-                <div className="col-span-3">Members</div>
-                <div className="col-span-3">Status</div>
-                <div className="col-span-2 text-right">Last Activity</div>
+                <div className="col-span-7 sm:col-span-4">Group Name</div>
+                <div className="hidden sm:block col-span-3">Members</div>
+                <div className="col-span-5 sm:col-span-3">Status</div>
+                <div className="hidden md:block col-span-2 text-right">Last Activity</div>
               </div>
 
               {/* Scrollable list of rows */}
@@ -235,7 +235,7 @@ function ExpenseMain() {
                       className="grid grid-cols-12 gap-2 py-3.5 items-center hover:bg-white/5 rounded-lg px-2 transition duration-200 cursor-pointer min-w-0"
                     >
                       {/* Column 1: Group Icon & Name */}
-                      <div className="col-span-4 flex items-center gap-3 min-w-0">
+                      <div className="col-span-7 sm:col-span-4 flex items-center gap-3 min-w-0">
                         <div className="w-8 h-8 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden shrink-0">
                           {group.groupImage ? (
                             <img src={groupImageSrc} alt="" className="w-full h-full object-cover" />
@@ -247,7 +247,7 @@ function ExpenseMain() {
                       </div>
 
                       {/* Column 2: Members Count & Avatars */}
-                      <div className="col-span-3 flex items-center gap-2 min-w-0">
+                      <div className="hidden sm:flex col-span-3 items-center gap-2 min-w-0">
                         <div className="flex -space-x-2 shrink-0">
                           {displayedMembers.map((member, idx) => (
                             <div
@@ -269,7 +269,7 @@ function ExpenseMain() {
                       </div>
 
                       {/* Column 3: Status & Action Exit Icon */}
-                      <div className="col-span-3 flex items-center gap-2.5 min-w-0">
+                      <div className="col-span-5 sm:col-span-3 flex items-center gap-2.5 min-w-0">
                         <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full ${statusBg} text-[10px] font-bold shrink-0`}>
                           {statusText}
                         </span>
@@ -286,7 +286,7 @@ function ExpenseMain() {
                       </div>
 
                       {/* Column 4: Last Activity */}
-                      <div className="col-span-2 text-right text-xs text-on-surface-variant truncate font-medium">
+                      <div className="hidden md:block col-span-2 text-right text-xs text-on-surface-variant truncate font-medium">
                         {index % 2 === 0 ? "2h ago" : "Yesterday"}
                       </div>
                     </div>
