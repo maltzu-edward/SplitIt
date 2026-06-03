@@ -122,9 +122,8 @@ function DashboardLayout() {
 
             {/* SideNavBar Component */}
             <aside className="fixed left-0 top-0 h-full flex flex-col bg-surface/70 backdrop-blur-xl w-64 border-r border-white/10 shadow-2xl shadow-primary-container/5 z-50">
-                <div className="p-8">
-                    <h1 className="font-headline-md text-headline-md font-bold text-primary-container">SplitIt</h1>
-                    <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">Premium Finance</p>
+                <div className="p-8 pb-4">
+                    <h1 className="font-headline-lg text-headline-lg font-bold text-primary-container">SplitIt</h1>
                 </div>
                 <nav className="flex-1 px-4 space-y-2 mt-4">
                     {navItems.map((item) => {
