@@ -73,7 +73,7 @@ function PaymentValidation() {
   };
 
   return (
-    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen flex flex-col text-on-surface">
+    <div className="pt-20 md:pt-24 px-4 md:pl-16 md:pr-margin-desktop pb-24 md:pb-12 min-h-screen flex flex-col text-on-surface">
       {/* Header */}
       <div className="glass-surface p-6 rounded-2xl mb-8 flex items-center justify-between shadow-2xl border border-white/10">
         <div className="flex items-center gap-4">

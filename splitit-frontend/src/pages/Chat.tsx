@@ -123,7 +123,7 @@ function Chat() {
   };
 
   return (
-    <div className="absolute top-16 bottom-0 left-0 right-0 flex flex-col overflow-hidden px-6 py-4">
+    <div className="absolute top-14 md:top-16 bottom-16 md:bottom-0 left-0 right-0 flex flex-col overflow-hidden px-2 md:px-6 py-4">
       {/* Premium Glass Chat Container */}
       <div className="flex-1 flex flex-col glass-surface rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
         {/* Chat Header */}

@@ -66,7 +66,7 @@ function UserProfile() {
   };
 
   return (
-    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen flex flex-col items-center justify-center">
+    <div className="pt-20 md:pt-24 px-4 md:pl-16 md:pr-margin-desktop pb-24 md:pb-12 min-h-screen flex flex-col items-center justify-center">
       <div className="glass-floating w-full max-w-md p-8 rounded-3xl flex flex-col items-center shadow-2xl border border-white/10 relative">
         
         {/* Edit mode toggle button (only in read mode) */}

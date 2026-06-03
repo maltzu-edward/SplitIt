@@ -148,7 +148,7 @@ function ExpenseMain() {
   };
 
   return (
-    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen">
+    <div className="pt-20 md:pt-24 px-4 md:pl-16 md:pr-margin-desktop pb-24 md:pb-12 min-h-screen">
       {/* Dashboard Header */}
       <div className="mb-8 flex justify-between items-center">
         <div>
@@ -332,8 +332,8 @@ function ExpenseMain() {
       </div>
 
       {/* Floating Create Group Button */}
-      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2">
-        <span className="text-xs font-bold text-gray-500 dark:text-gray-400">Create a new group</span>
+      <div className="fixed bottom-20 md:bottom-6 right-6 z-40 flex items-center gap-2">
+        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 hidden sm:block">Create a new group</span>
         <button
           onClick={() => {
             setModalStep(1);

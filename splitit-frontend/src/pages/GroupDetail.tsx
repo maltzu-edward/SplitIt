@@ -260,20 +260,20 @@ function GroupDetail() {
   );
 
   if (groupLoading) return (
-    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen flex items-center justify-center">
+    <div className="pt-20 md:pt-24 px-4 md:pl-16 md:pr-margin-desktop pb-24 md:pb-12 min-h-screen flex items-center justify-center">
       <span className="material-symbols-outlined animate-spin text-primary-container text-4xl">progress_activity</span>
     </div>
   );
 
   if (!group) return (
-    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen flex flex-col items-center justify-center gap-4">
+    <div className="pt-20 md:pt-24 px-4 md:pl-16 md:pr-margin-desktop pb-24 md:pb-12 min-h-screen flex flex-col items-center justify-center gap-4">
       <p className="text-lg font-bold text-on-surface">Group not found</p>
       <button onClick={() => navigate("/expense")} className="px-6 py-3 bg-primary-container text-on-primary-container hover:bg-inverse-primary rounded-xl font-bold transition">Go Back</button>
     </div>
   );
 
   return (
-    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen flex flex-col">
+    <div className="pt-20 md:pt-24 px-4 md:pl-16 md:pr-margin-desktop pb-24 md:pb-12 min-h-screen flex flex-col">
       {/* Header */}
       <div className="glass-surface p-4 rounded-xl mb-6 flex items-center gap-3 shadow-xl">
         <button onClick={() => navigate("/expense")} className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center cursor-pointer hover:bg-white/10 transition-colors">

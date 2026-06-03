@@ -47,7 +47,7 @@ function FriendMain() {
   const AVATAR_COLORS = ['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'];
 
   return (
-    <div className="pt-24 pl-16 pr-margin-desktop pb-12 min-h-screen flex flex-col">
+    <div className="pt-20 md:pt-24 px-4 md:pl-16 md:pr-margin-desktop pb-24 md:pb-12 min-h-screen flex flex-col">
       {/* Header */}
       <div className="mb-8 flex justify-between items-center">
         <div>
@@ -153,8 +153,8 @@ function FriendMain() {
       )}
 
       {/* Floating Button */}
-      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2">
-        <span className="text-xs font-bold text-gray-500 dark:text-gray-400">Add a new friend</span>
+      <div className="fixed bottom-20 md:bottom-6 right-6 z-40 flex items-center gap-2">
+        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 hidden sm:block">Add a new friend</span>
         <button
           onClick={() => setShowAddModal(true)}
           className="bg-primary-container hover:bg-inverse-primary rounded-full w-12 h-12 flex justify-center items-center shadow-lg active:scale-90 transition-transform cursor-pointer"
