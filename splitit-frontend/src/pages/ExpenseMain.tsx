@@ -150,62 +150,55 @@ function ExpenseMain() {
   return (
     <div className="pt-20 md:pt-24 px-4 md:pl-16 md:pr-margin-desktop pb-24 md:pb-12 min-h-screen">
       {/* Dashboard Header */}
-      <div className="mb-8 flex justify-between items-center">
-        <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">Financial Overview</h2>
-          <p className="text-on-surface-variant font-body-md">Real-time status across all active groups.</p>
-        </div>
+      <div className="mb-6">
+        <h2 className="font-headline-lg text-headline-lg text-on-surface">Financial Overview</h2>
+        <p className="text-on-surface-variant font-body-md">Real-time status across all active groups.</p>
       </div>
 
-      {/* Financial Summary Widgets (Bento Style) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter mb-12">
-        {/* You are Owed widget */}
-        <div className="glass-floating p-6 rounded-xl relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-10 text-primary-container">
-            <span className="material-symbols-outlined text-[64px]">trending_up</span>
-          </div>
-          <p className="text-label-md text-on-surface-variant mb-1">Total You are Owed</p>
-          <h3 className="font-headline-xl text-headline-xl text-primary-container font-black">
-            {formatCurrency(summary?.totalOwe || 0)}
-          </h3>
-          <div className="mt-4 flex items-center gap-2 text-primary-container font-label-sm">
-            <span className="material-symbols-outlined text-label-sm">arrow_upward</span>
-            <span>Total expense owed to you</span>
+      {/* Flat Financial Metrics Row (Centered and Big) */}
+      <div className="flex justify-center items-center gap-12 text-on-surface py-6 mb-8 bg-transparent">
+        {/* You are Owed */}
+        <div className="flex items-center gap-4">
+          <span className="material-symbols-outlined text-primary-container text-4xl shrink-0">arrow_upward</span>
+          <div>
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Total You are Owed</p>
+            <h3 className="text-3xl font-black text-primary-container">
+              {formatCurrency(summary?.totalOwe || 0)}
+            </h3>
           </div>
         </div>
 
-        {/* You Owe widget */}
-        <div className="glass-floating p-6 rounded-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10 text-error">
-            <span className="material-symbols-outlined text-[64px]">trending_down</span>
-          </div>
-          <p className="text-label-md text-on-surface-variant mb-1">Total You Owe</p>
-          <h3 className="font-headline-xl text-headline-xl text-error font-black">
-            {formatCurrency(summary?.totalOwed || 0)}
-          </h3>
-          <div className="mt-4 flex items-center gap-2 text-error font-label-sm">
-            <span className="material-symbols-outlined text-label-sm">arrow_downward</span>
-            <span>Total expense you owe</span>
+        {/* Separator */}
+        <div className="h-12 w-[1px] bg-white/20" />
+
+        {/* You Owe */}
+        <div className="flex items-center gap-4">
+          <span className="material-symbols-outlined text-error text-4xl shrink-0">arrow_downward</span>
+          <div>
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Total You Owe</p>
+            <h3 className="text-3xl font-black text-error">
+              {formatCurrency(summary?.totalOwed || 0)}
+            </h3>
           </div>
         </div>
       </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
-        {/* Active Groups List */}
-        <div className="lg:col-span-8 space-y-gutter">
-          <div className="flex justify-between items-center">
+        {/* Active Groups List Container */}
+        <div className="lg:col-span-8 glass-surface rounded-2xl p-6 border border-white/10 flex flex-col h-[480px]">
+          <div className="flex justify-between items-center mb-4">
             <h4 className="font-headline-md text-headline-md text-on-surface">Active Groups</h4>
           </div>
 
           {loading && (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex-1 flex items-center justify-center">
               <span className="material-symbols-outlined animate-spin text-primary-container text-4xl">progress_activity</span>
             </div>
           )}
 
           {!loading && filteredGroups.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 bg-white/5 border border-white/10 rounded-2xl">
+            <div className="flex-1 flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-2xl p-6">
               <span className="material-symbols-outlined text-6xl text-on-surface-variant/40 mb-4">group</span>
               <p className="text-base font-bold text-on-surface">
                 {groups.length === 0 && searchQuery.trim() === "" ? "You don't have any groups yet." : "No groups match your search."}
@@ -216,77 +209,98 @@ function ExpenseMain() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {!loading && filteredGroups.map((group, index) => {
-              const groupImageSrc = group.groupImage || '/GroupLogo.png';
-              const totalMembers = group.members?.length || 0;
-              const displayedMembers = group.members?.slice(0, 3) || [];
-              const icon = index % 2 === 0 ? "apartment" : "flight_takeoff";
-              const statusText = index % 2 === 0 ? "Settled" : "Action Needed";
-              const statusBg = index % 2 === 0 ? "bg-primary-container/10 text-primary-container" : "bg-error/10 text-error";
+          {!loading && filteredGroups.length > 0 && (
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+              {/* Column Headers */}
+              <div className="grid grid-cols-12 gap-2 pb-3 border-b border-white/10 text-xs font-bold text-on-surface-variant/60 uppercase tracking-wider px-2">
+                <div className="col-span-4">Group Name</div>
+                <div className="col-span-3">Members</div>
+                <div className="col-span-3">Status</div>
+                <div className="col-span-2 text-right">Last Activity</div>
+              </div>
 
-              return (
-                <div
-                  key={group.id}
-                  className="glass-surface p-6 rounded-xl hover:border-primary-container/40 transition-all duration-300 cursor-pointer group shadow-xl relative"
-                  onClick={() => navigate(`/group/${group.id}`)}
-                >
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-12 h-12 rounded-lg bg-primary-container flex items-center justify-center overflow-hidden">
-                      {group.groupImage ? (
-                        <img src={groupImageSrc} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="material-symbols-outlined text-on-primary-container">{icon}</span>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full ${statusBg} text-label-sm font-bold`}>{statusText}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setLeaveConfirm({ groupId: group.id, groupName: group.name });
-                        }}
-                        className="p-1 text-xs text-error hover:bg-error/10 rounded-lg transition"
-                      >
-                        <span className="material-symbols-outlined text-sm">logout</span>
-                      </button>
-                    </div>
-                  </div>
-                  <h5 className="font-headline-md text-headline-md mb-1 text-on-surface">{group.name}</h5>
-                  <p className="text-on-surface-variant font-label-sm mb-6">{totalMembers} Members</p>
-                  
-                  <div className="flex -space-x-3 mb-6">
-                    {displayedMembers.map((member, idx) => (
-                      <div
-                        key={`${group.id}-member-${idx}`}
-                        className="w-10 h-10 rounded-full border-2 border-surface flex items-center justify-center text-xs font-bold text-white"
-                        style={{ backgroundColor: getMemberColor(idx) }}
-                        title={member?.user?.name}
-                      >
-                        {getInitials(member?.user?.name || '')}
-                      </div>
-                    ))}
-                    {totalMembers > 3 && (
-                      <div className="w-10 h-10 rounded-full border-2 border-surface bg-surface-container-high flex items-center justify-center text-xs font-bold text-on-surface-variant">
-                        +{totalMembers - 3}
-                      </div>
-                    )}
-                  </div>
+              {/* Scrollable list of rows */}
+              <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin mt-2 divide-y divide-white/5">
+                {filteredGroups.map((group, index) => {
+                  const groupImageSrc = group.groupImage || '/GroupLogo.png';
+                  const totalMembers = group.members?.length || 0;
+                  const displayedMembers = group.members?.slice(0, 3) || [];
+                  const statusText = index % 2 === 0 ? "Settled" : "Action Needed";
+                  const statusBg = index % 2 === 0 ? "bg-primary-container/10 text-primary-container" : "bg-error/10 text-error";
 
-                  <div className="pt-4 border-t border-white/5 flex justify-between items-end">
-                    <span className="text-label-sm text-on-surface-variant">Click to view splits</span>
-                    <span className="material-symbols-outlined text-primary-container group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  return (
+                    <div
+                      key={group.id}
+                      onClick={() => navigate(`/group/${group.id}`)}
+                      className="grid grid-cols-12 gap-2 py-3.5 items-center hover:bg-white/5 rounded-lg px-2 transition duration-200 cursor-pointer min-w-0"
+                    >
+                      {/* Column 1: Group Icon & Name */}
+                      <div className="col-span-4 flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden shrink-0">
+                          {group.groupImage ? (
+                            <img src={groupImageSrc} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="material-symbols-outlined text-yellow-500 text-lg">folder_shared</span>
+                          )}
+                        </div>
+                        <span className="font-semibold text-sm text-on-surface truncate">{group.name}</span>
+                      </div>
+
+                      {/* Column 2: Members Count & Avatars */}
+                      <div className="col-span-3 flex items-center gap-2 min-w-0">
+                        <div className="flex -space-x-2 shrink-0">
+                          {displayedMembers.map((member, idx) => (
+                            <div
+                              key={`${group.id}-member-${idx}`}
+                              className="w-6.5 h-6.5 rounded-full border border-surface flex items-center justify-center text-[9px] font-bold text-white shrink-0"
+                              style={{ backgroundColor: getMemberColor(idx) }}
+                              title={member?.user?.name}
+                            >
+                              {getInitials(member?.user?.name || '')}
+                            </div>
+                          ))}
+                          {totalMembers > 3 && (
+                            <div className="w-6.5 h-6.5 rounded-full border border-surface bg-surface-container-high flex items-center justify-center text-[9px] font-bold text-on-surface-variant shrink-0">
+                              +{(totalMembers - 3)}
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-xs text-on-surface-variant hidden sm:inline shrink-0 font-medium">({totalMembers})</span>
+                      </div>
+
+                      {/* Column 3: Status & Action Exit Icon */}
+                      <div className="col-span-3 flex items-center gap-2.5 min-w-0">
+                        <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full ${statusBg} text-[10px] font-bold shrink-0`}>
+                          {statusText}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLeaveConfirm({ groupId: group.id, groupName: group.name });
+                          }}
+                          className="w-7 h-7 flex items-center justify-center text-error hover:bg-error/10 rounded-lg transition shrink-0 animate-fade-in"
+                          title="Leave Group"
+                        >
+                          <span className="material-symbols-outlined text-base">logout</span>
+                        </button>
+                      </div>
+
+                      {/* Column 4: Last Activity */}
+                      <div className="col-span-2 text-right text-xs text-on-surface-variant truncate font-medium">
+                        {index % 2 === 0 ? "2h ago" : "Yesterday"}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Recent Activity Feed */}
-        <div className="lg:col-span-4 glass-surface rounded-2xl p-6 min-h-[380px] flex flex-col">
+        {/* Recent Activity Feed (Vertically Aligned) */}
+        <div className="lg:col-span-4 glass-surface rounded-2xl p-6 border border-white/10 flex flex-col h-[480px]">
           <h4 className="font-headline-md text-headline-md text-on-surface mb-6">Recent Activity</h4>
-          <div className="space-y-6 overflow-y-auto flex-1 max-h-[400px] pr-2 scrollbar-thin">
+          <div className="space-y-6 overflow-y-auto flex-1 pr-2 scrollbar-thin">
             {recentActivities.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 text-center text-on-surface-variant">
                 <span className="material-symbols-outlined text-4xl mb-3 text-on-surface-variant/40">history</span>
