@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Patch, Delete } from '@nestjs/common';
 import { FriendsService } from './friends.service';
 import { AddFriendDto, RespondFriendDto } from './dto/create-friend.dto';
 
@@ -34,5 +34,11 @@ export class FriendsController {
   @Patch('respond')
   respondToRequest(@Body() respondFriendDto: RespondFriendDto) {
     return this.friendsService.respondToRequest(respondFriendDto);
+  }
+
+  // Route: DELETE http://127.0.0.1:3000/friends/:friendshipId/:userId
+  @Delete(':friendshipId/:userId')
+  removeFriend(@Param('friendshipId') friendshipId: string, @Param('userId') userId: string) {
+    return this.friendsService.removeFriend(userId, friendshipId);
   }
 }

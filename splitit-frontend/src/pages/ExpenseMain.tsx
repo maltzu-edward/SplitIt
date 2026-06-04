@@ -213,9 +213,9 @@ function ExpenseMain() {
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
               {/* Column Headers */}
               <div className="grid grid-cols-12 gap-2 pb-3 border-b border-white/10 text-xs font-bold text-on-surface-variant/60 uppercase tracking-wider px-2">
-                <div className="col-span-7 sm:col-span-4">Group Name</div>
+                <div className="col-span-6 sm:col-span-4">Group Name</div>
                 <div className="hidden sm:block col-span-3">Members</div>
-                <div className="col-span-5 sm:col-span-3">Status</div>
+                <div className="col-span-6 sm:col-span-3">Status</div>
                 <div className="hidden md:block col-span-2 text-right">Last Activity</div>
               </div>
 
@@ -235,7 +235,7 @@ function ExpenseMain() {
                       className="grid grid-cols-12 gap-2 py-3.5 items-center hover:bg-white/5 rounded-lg px-2 transition duration-200 cursor-pointer min-w-0"
                     >
                       {/* Column 1: Group Icon & Name */}
-                      <div className="col-span-7 sm:col-span-4 flex items-center gap-3 min-w-0">
+                      <div className="col-span-6 sm:col-span-4 flex items-center gap-3 min-w-0">
                         <div className="w-8 h-8 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center overflow-hidden shrink-0">
                           {group.groupImage ? (
                             <img src={groupImageSrc} alt="" className="w-full h-full object-cover" />
@@ -269,8 +269,8 @@ function ExpenseMain() {
                       </div>
 
                       {/* Column 3: Status & Action Exit Icon */}
-                      <div className="col-span-5 sm:col-span-3 flex items-center gap-2.5 min-w-0">
-                        <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full ${statusBg} text-[10px] font-bold shrink-0`}>
+                      <div className="col-span-6 sm:col-span-3 flex items-center justify-between sm:justify-start gap-2.5 min-w-0 pr-2 sm:pr-0">
+                        <span className={`inline-flex items-center justify-center w-20 sm:w-24 px-1.5 sm:px-2 py-0.5 rounded-full ${statusBg} text-[9px] sm:text-[10px] font-bold shrink-0 text-center`}>
                           {statusText}
                         </span>
                         <button
@@ -405,9 +405,38 @@ function ExpenseMain() {
                       value={newGroupDesc}
                       onChange={(e) => setNewGroupDesc(e.target.value)}
                       placeholder="e.g. Travel and food expenses sharing"
-                      rows={4}
+                      rows={3}
                       className="w-full bg-white/5 border border-white/10 rounded-lg p-3 outline-none focus:ring-2 focus:ring-primary-container text-sm resize-none text-on-surface placeholder-on-surface-variant/40"
                     />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-on-surface-variant mb-1.5">Group Category</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {GROUP_CATEGORIES.map((cat) => {
+                        const isSelected = selectedCategory === cat.id;
+                        let catIcon = "category";
+                        if (cat.id === 'food') catIcon = "restaurant";
+                        else if (cat.id === 'electricity') catIcon = "bolt";
+                        else if (cat.id === 'household') catIcon = "home";
+                        else if (cat.id === 'bills') catIcon = "receipt_long";
+
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => setSelectedCategory(cat.id)}
+                            className={`flex items-center gap-2 p-2 rounded-lg border transition-all cursor-pointer ${
+                              isSelected
+                                ? "border-primary-container bg-primary-container/10 font-bold text-primary-container"
+                                : "border-white/10 bg-white/5 hover:bg-white/10 text-on-surface-variant hover:text-on-surface"
+                            }`}
+                          >
+                            <span className="material-symbols-outlined text-lg shrink-0">{catIcon}</span>
+                            <span className="text-[11px] truncate">{cat.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               ) : (

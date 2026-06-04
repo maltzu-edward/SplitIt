@@ -28,6 +28,7 @@ interface FriendStore {
     sendMessage: (senderId: string, receiverId: string, content: string) => Promise<void>;
     sendRequest: (userId: string, friendId: string) => Promise<void>;
     respondToRequest: (userId: string, requestId: string, status: "ACCEPTED" | "DECLINED") => Promise<void>;
+    removeFriend: (userId: string, friendshipId: string) => Promise<void>;
 }
 
 const useFriendStore = create<FriendStore>((set) => ({
@@ -119,6 +120,17 @@ const useFriendStore = create<FriendStore>((set) => ({
                 status,
             }, { withCredentials: true });
             set({ loading: false });
+        } catch (err: any) {
+            set({ error: err.message, loading: false });
+            throw err;
+        }
+    },
+
+    removeFriend: async (userId: string, friendshipId: string) => {
+        set({ loading: true, error: null });
+        try {
+            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/friends/${friendshipId}/${userId}`, { withCredentials: true });
+            await useFriendStore.getState().fetchFriends(userId);
         } catch (err: any) {
             set({ error: err.message, loading: false });
             throw err;

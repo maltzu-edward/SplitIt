@@ -1,4 +1,4 @@
-import { Plus, X, UserRoundPlus, MessageCircleMore } from "lucide-react";
+import { Plus, X, UserRoundPlus, MessageCircleMore, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useFriendStore from "../store/FriendStore";
@@ -11,7 +11,7 @@ function FriendMain() {
 
   const user = useUserAuth((s) => s.user);
   const navigate = useNavigate();
-  const { acceptedFriends, fetchFriends, sendRequest, loading, unreadCounts } = useFriendStore();
+  const { acceptedFriends, fetchFriends, sendRequest, loading, unreadCounts, removeFriend } = useFriendStore();
   const { searchQuery } = useExpenseStore();
 
   const filteredFriends = acceptedFriends.filter((friend) =>
@@ -85,18 +85,38 @@ function FriendMain() {
                       <p className="text-[11px] text-on-surface-variant">{friend.friend.email}</p>
                     </div>
                   </div>
-                  <div className="relative">
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <button
+                        onClick={() => navigate(`/chat/${friend.friendId}`)}
+                        className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center cursor-pointer hover:bg-white/10 transition-colors"
+                      >
+                        <MessageCircleMore className="w-5 h-5 text-on-surface"/>
+                      </button>
+                      {hasUnread && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                          {unread!.unreadCount > 9 ? '9+' : unread!.unreadCount}
+                        </span>
+                      )}
+                    </div>
                     <button
-                      onClick={() => navigate(`/chat/${friend.friendId}`)}
-                      className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center cursor-pointer hover:bg-white/10 transition-colors"
+                      onClick={async () => {
+                        if (!user) return;
+                        const confirmDelete = window.confirm(`Are you sure you want to remove ${friend.friend.name} from your friends list?`);
+                        if (!confirmDelete) return;
+                        try {
+                          await removeFriend(user.id, friend.id);
+                          alert("Friend removed successfully.");
+                        } catch (err) {
+                          console.error("Failed to remove friend", err);
+                          alert("Failed to remove friend. Please try again.");
+                        }
+                      }}
+                      className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center cursor-pointer hover:bg-red-500/20 transition-colors text-error"
+                      title="Remove Friend"
                     >
-                      <MessageCircleMore className="w-5 h-5 text-on-surface"/>
+                      <Trash2 className="w-5 h-5" />
                     </button>
-                    {hasUnread && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
-                        {unread!.unreadCount > 9 ? '9+' : unread!.unreadCount}
-                      </span>
-                    )}
                   </div>
                 </div>
               );

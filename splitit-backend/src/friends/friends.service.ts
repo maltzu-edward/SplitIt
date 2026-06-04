@@ -139,4 +139,25 @@ export class FriendsService {
 
     return { message: 'Friend request accepted!', data: updatedFriendship };
   }
+
+  // hapus pertemanan
+  async removeFriend(userId: string, friendshipId: string) {
+    const friendship = await this.prisma.friendship.findUnique({
+      where: { id: friendshipId },
+    });
+
+    if (!friendship) {
+      throw new NotFoundException('Friendship not found.');
+    }
+
+    if (friendship.userId !== userId && friendship.friendId !== userId) {
+      throw new BadRequestException('You are not authorized to remove this friend.');
+    }
+
+    await this.prisma.friendship.delete({
+      where: { id: friendshipId },
+    });
+
+    return { message: 'Friend removed successfully.' };
+  }
 }

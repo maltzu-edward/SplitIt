@@ -1,4 +1,4 @@
-import { ArrowLeft, UserPlus, Check, X } from "lucide-react";
+import { ArrowLeft, Check, X } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useFriendStore from "../store/FriendStore";
@@ -78,23 +78,7 @@ function FriendRequests() {
           </div>
         )}
 
-        {!loading && notifications.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 px-4 bg-surface/30 border border-white/5 rounded-2xl backdrop-blur-md shadow-xl text-center">
-            <div className="w-20 h-20 bg-primary-container/10 border border-primary-container/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
-              <UserPlus className="w-10 h-10 text-primary-container" />
-            </div>
-            <h3 className="text-lg font-bold text-on-surface mb-2">No Pending Requests</h3>
-            <p className="text-sm text-on-surface-variant max-w-sm mb-6">
-              You don't have any incoming friend requests at the moment. Share your User ID from the profile page with others!
-            </p>
-            <button
-              onClick={() => navigate("/profile")}
-              className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-semibold text-on-surface transition-all cursor-pointer hover:scale-102 active:scale-98"
-            >
-              Go to Profile
-            </button>
-          </div>
-        )}
+        {!loading && notifications.length === 0 && null}
 
         {!loading && notifications.length > 0 && (
           <div className="space-y-4">
