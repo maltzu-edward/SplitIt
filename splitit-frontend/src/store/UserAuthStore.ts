@@ -5,7 +5,7 @@ import type { UserAuthType } from "../type/UserAuthType";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
 
 const useUserAuth = create<UserAuthType>((set, get) => ({
-  //initial value of the user
+  
   user: null,
   authChecked: false,
 

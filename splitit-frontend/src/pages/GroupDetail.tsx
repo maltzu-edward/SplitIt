@@ -61,7 +61,7 @@ function GroupDetail() {
   const [uploadingProof, setUploadingProof] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // OCR scan state
+  
   const [scanningReceipt, setScanningReceipt] = useState(false);
   const [scannedReceipt, setScannedReceipt] = useState<{ title: string; items: { name: string; price: number }[]; total: number } | null>(null);
   const [assignedItems, setAssignedItems] = useState<{ name: string; price: number; assignedTo: string[] }[]>([]);

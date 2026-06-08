@@ -7,9 +7,9 @@ import { CreateExpenseDto } from './dto/create-expense.dto';
 export class GroupsService {
   constructor(private prisma: PrismaService) {}
 
-  // buat group baru
+  
   async createGroup(data: CreateGroupDto) {
-    // pastiin creator ada di DB
+    
     const creator = await this.prisma.user.findUnique({
       where: { id: data.creatorId },
     });
@@ -18,11 +18,11 @@ export class GroupsService {
       throw new NotFoundException('Creator ID not found in the database.');
     }
 
-    // gabungin creator + member, buang duplikat
+    
     const rawMemberIds = data.memberIds ? [data.creatorId, ...data.memberIds] : [data.creatorId];
     const uniqueMemberIds = [...new Set(rawMemberIds)];
 
-    // buat group & masukin semua member
+    
     try {
       const newGroup = await this.prisma.group.create({
         data: {
@@ -49,7 +49,7 @@ export class GroupsService {
     }
   }
 
-  // ambil list group user
+  
   async getUserGroups(userId: string) {
     return this.prisma.group.findMany({
       where: {
@@ -74,7 +74,7 @@ export class GroupsService {
     });
   }
 
-  // detail group
+  
   async getGroupDetail(groupId: string) {
     const group = await this.prisma.group.findUnique({
       where: { id: groupId },
@@ -92,9 +92,9 @@ export class GroupsService {
     return group;
   }
 
-  // tambah expense ke group
+  
   async addExpense(data: CreateExpenseDto) {
-    // cek group ada
+    
     const group = await this.prisma.group.findUnique({
       where: { id: data.groupId },
     });

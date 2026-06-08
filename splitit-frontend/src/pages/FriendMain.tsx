@@ -48,7 +48,7 @@ function FriendMain() {
 
   return (
     <div className="pt-20 md:pt-24 px-4 md:pl-16 md:pr-margin-desktop pb-24 md:pb-12 min-h-screen flex flex-col">
-      {/* Header */}
+      {}
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h2 className="font-headline-lg text-headline-lg text-on-surface">Your Friends</h2>

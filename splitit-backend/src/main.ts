@@ -10,14 +10,14 @@ import { existsSync, mkdirSync } from 'fs';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Pastikan folder uploads ada
+  
   const uploadsPath = join(process.cwd(), 'uploads');
   if (!existsSync(uploadsPath)) mkdirSync(uploadsPath, { recursive: true });
 
-  // Sajikan file statis dari folder uploads (untuk bukti pembayaran)
+  
   app.useStaticAssets(uploadsPath, { prefix: '/uploads' });
   
-  // 1. Enable CORS so the web frontend can access the backend
+  
   app.enableCors({
     origin: true, 
     credentials: true,

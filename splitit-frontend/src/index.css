@@ -10,7 +10,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Colour */
+  
   --fun-color-primary: #2D5BFF;
   --fun-color-lightgray: #F5F5F5;
   --fun-color-gray: #ECECEC;
@@ -18,10 +18,10 @@
   --fun-color-success: #4CAF50;
   --fun-color-secondary: #BFD8FF;
   --fun-color-grocery: #88e119;
-  /* Font */
+  
   font-family: "Poppins", sans-serif;
 
-  /* Light Theme Variables */
+  
   --theme-background: #f8fafc;
   --theme-surface: #ffffff;
   --theme-on-surface: #0f172a;
@@ -39,7 +39,7 @@
 }
 
 html.dark {
-  /* Dark Theme Variables */
+  
   --theme-background: #11131c;
   --theme-surface: #11131c;
   --theme-on-surface: #e2e1ee;
@@ -68,7 +68,7 @@ html.dark {
   --color-secondary: var(--fun-color-secondary);
   --color-grocery: var(--fun-color-grocery);
 
-  /* Premium theme colors */
+  
   --color-on-primary-container: var(--theme-on-primary-container);
   --color-inverse-primary: #024cec;
   --color-secondary-fixed: #e2dfff;
@@ -114,7 +114,7 @@ html.dark {
   --color-inverse-surface: var(--theme-on-surface);
   --color-surface-container-lowest: var(--theme-surface-container-lowest);
 
-  /* Typography families */
+  
   --font-headline-xl: "Outfit", sans-serif;
   --font-label-md: "Inter", sans-serif;
   --font-headline-lg: "Outfit", sans-serif;
@@ -123,7 +123,7 @@ html.dark {
   --font-label-sm: "Inter", sans-serif;
   --font-body-lg: "Inter", sans-serif;
 
-  /* Typography sizes & configurations */
+  
   --text-headline-xl: 40px;
   --text-headline-xl--line-height: 48px;
   --text-headline-xl--letter-spacing: -0.02em;
@@ -164,7 +164,7 @@ body {
   color: var(--theme-on-surface);
 }
 
-/* Global reset and base styles */ 
+ 
 * {
   box-sizing: border-box;
   
@@ -173,8 +173,8 @@ body {
   }
 
   .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
   }
 }
 

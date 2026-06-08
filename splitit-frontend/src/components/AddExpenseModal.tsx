@@ -9,7 +9,7 @@ type SplitType = "equally" | "exact" | "percentage";
 interface AddExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  groupId?: string; // Optional if adding directly from friend
+  groupId?: string; 
 }
 
 const CATEGORIES = [
@@ -40,9 +40,9 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
   };
 
   const handleSubmit = () => {
-    // Mock submit for now
+    
     console.log("Submitting Expense:", { title, amount, category, splitType, selectedFriends });
-    // Reset state
+    
     setStep(1);
     setTitle("");
     setAmount("");
@@ -82,7 +82,7 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="relative bg-white w-full max-w-md h-[85vh] sm:h-auto sm:max-h-[85vh] sm:rounded-2xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden"
           >
-            {/* Header */}
+            {}
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
               <button 
                 onClick={step > 1 ? handleBack : handleClose}
@@ -103,7 +103,7 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
               </div>
             </div>
 
-            {/* Content */}
+            {}
             <div className="flex-1 overflow-y-auto p-6">
               {step === 1 && (
                 <motion.div 
@@ -258,7 +258,7 @@ export default function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProp
               )}
             </div>
 
-            {/* Footer Action */}
+            {}
             <div className="p-5 border-t border-gray-100 bg-white">
               {step < 3 ? (
                 <button

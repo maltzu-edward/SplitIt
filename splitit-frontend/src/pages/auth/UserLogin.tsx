@@ -29,19 +29,19 @@ function UserLogin() {
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-background font-body-md text-on-surface">
-            {/* Left Side: Visual Illustration (Desktop Only) */}
+            {}
             <div className="hidden lg:flex lg:w-1/2 relative bg-surface-container-lowest overflow-hidden items-center justify-center p-12">
-                {/* Abstract Financial Nodes Illustration */}
+                {}
                 <div className="relative z-10 w-full max-w-lg aspect-square flex items-center justify-center">
                     <div className="absolute inset-0 bg-primary-container/5 rounded-full blur-[120px]"></div>
-                    {/* Center Hub */}
+                    {}
                     <div className="glass-panel w-48 h-48 rounded-3xl flex flex-col items-center justify-center z-20 floating">
                         <span className="material-symbols-outlined text-primary-container text-[64px] mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>
                             account_balance_wallet
                         </span>
                         <span className="font-headline-md text-headline-md text-primary-container">SplitIt</span>
                     </div>
-                    {/* Orbiting Nodes */}
+                    {}
                     <div className="absolute top-[10%] left-[50%] -translate-x-1/2 -translate-y-1/2 glass-panel p-4 rounded-2xl flex items-center gap-3 node-pulse z-20" style={{ animationDelay: "0s" }}>
                         <span className="material-symbols-outlined text-secondary">trending_up</span>
                         <span className="font-label-md text-label-md">Share Easily</span>
@@ -54,17 +54,17 @@ function UserLogin() {
                         <span className="material-symbols-outlined text-primary-container">security</span>
                         <span className="font-label-md text-label-md">Squad Settled</span>
                     </div>
-                    {/* Connectors (Dashed Lines) */}
+                    {}
                     <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20" viewBox="0 0 100 100">
-                        {/* Line to Growth */}
+                        {}
                         <line className="text-primary-container" x1="50%" y1="50%" x2="50%" y2="15%" stroke="currentColor" strokeDasharray="2" strokeWidth="0.5"></line>
-                        {/* Line to Shared Vault */}
+                        {}
                         <line className="text-secondary" x1="50%" y1="50%" x2="80%" y2="73%" stroke="currentColor" strokeDasharray="2" strokeWidth="0.5"></line>
-                        {/* Line to Encrypted */}
+                        {}
                         <line className="text-tertiary" x1="50%" y1="50%" x2="20%" y2="76%" stroke="currentColor" strokeDasharray="2" strokeWidth="0.5"></line>
                     </svg>
                 </div>
-                {/* Brand Logo Overlays */}
+                {}
                 <div className="absolute top-12 left-12 flex items-center gap-2">
                     <span className="text-[60px] leading-none font-black text-primary-container">SplitIt</span>
                 </div>
@@ -74,10 +74,10 @@ function UserLogin() {
                 </div>
             </div>
 
-            {/* Right Side: Login Form */}
+            {}
             <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 lg:p-24 bg-surface z-10 relative">
                 <div className="w-full max-w-md space-y-8">
-                    {/* Header */}
+                    {}
                     <div className="space-y-2">
                         <div className="lg:hidden flex items-center gap-2 mb-8">
                             <span className="font-headline-md text-headline-md font-black text-primary-container">SplitIt</span>
@@ -86,7 +86,7 @@ function UserLogin() {
                         <p className="font-body-md text-body-md text-on-surface-variant">Enter your credentials to access your dashboard.</p>
                     </div>
 
-                    {/* Form */}
+                    {}
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         {error && (
                             <div className="p-3 bg-error-container/20 border border-error-container/40 rounded-xl text-error text-sm text-center">
@@ -94,7 +94,7 @@ function UserLogin() {
                             </div>
                         )}
 
-                        {/* Email Field */}
+                        {}
                         <div className="space-y-2">
                             <label className="font-label-md text-label-md text-on-surface-variant block" htmlFor="email">Email Address</label>
                             <div className="relative group transition-transform duration-200">
@@ -112,7 +112,7 @@ function UserLogin() {
                             </div>
                         </div>
 
-                        {/* Password Field */}
+                        {}
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
                                 <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="password">Password</label>
@@ -142,7 +142,7 @@ function UserLogin() {
                             </div>
                         </div>
 
-                        {/* Remember Me */}
+                        {}
                         <div className="flex items-center gap-3">
                             <input
                                 className="w-5 h-5 rounded border-outline/30 bg-surface-container text-primary-container focus:ring-primary-container/40 focus:ring-offset-0"
@@ -154,7 +154,7 @@ function UserLogin() {
                             <label className="font-body-md text-body-md text-on-surface-variant select-none" htmlFor="remember">Stay logged in for 30 days</label>
                         </div>
 
-                        {/* Submit Button */}
+                        {}
                         <button
                             className="w-full bg-primary-container hover:bg-inverse-primary text-on-primary-container font-headline-md text-headline-md py-4 rounded-xl transition-all duration-300 transform active:scale-[0.98] glow-accent shadow-lg flex items-center justify-center gap-3 group disabled:opacity-50 disabled:cursor-not-allowed"
                             type="submit"
@@ -176,14 +176,14 @@ function UserLogin() {
 
 
 
-                    {/* Sign Up Footer */}
+                    {}
                     <p className="text-center font-body-md text-body-md text-on-surface-variant">
                         Don't have an account?{" "}
                         <Link className="text-primary-container font-bold hover:underline" to="/register">Sign Up</Link>
                     </p>
                 </div>
 
-                {/* Abstract Footer Decoration */}
+                {}
                 <div className="absolute bottom-6 right-6 opacity-30 pointer-events-none">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-1 bg-primary-container rounded-full"></div>

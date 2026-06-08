@@ -10,5 +10,5 @@ export function ProtectedRoute() {
   if (!isAuth) {
     return <Navigate to="/login" replace />;
   }
-  return <Outlet />; //child route
+  return <Outlet />; 
 }

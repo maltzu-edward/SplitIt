@@ -69,7 +69,7 @@ function UserProfile() {
     <div className="pt-20 md:pt-24 px-4 md:pl-16 md:pr-margin-desktop pb-24 md:pb-12 min-h-screen flex flex-col items-center justify-center">
       <div className="glass-floating w-full max-w-md p-8 rounded-3xl flex flex-col items-center shadow-2xl border border-white/10 relative">
         
-        {/* Edit mode toggle button (only in read mode) */}
+        {}
         {!isEditing && (
           <button
             onClick={() => setIsEditing(true)}
@@ -80,7 +80,7 @@ function UserProfile() {
           </button>
         )}
 
-        {/* Profile Picture Area */}
+        {}
         <div className="relative group mb-6">
           <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-primary-container/40 flex items-center justify-center bg-primary-container/20 shadow-xl relative">
             {previewUrl ? (

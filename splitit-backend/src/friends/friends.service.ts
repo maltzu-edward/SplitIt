@@ -6,9 +6,9 @@ import { AddFriendDto, RespondFriendDto } from './dto/create-friend.dto';
 export class FriendsService {
   constructor(private prisma: PrismaService) {}
 
-  // kirim friend request
+  
   async sendFriendRequest(data: AddFriendDto) {
-    // cek sender valid dulu
+    
     const requester = await this.prisma.user.findUnique({
       where: { id: data.requesterId },
     });
@@ -17,7 +17,7 @@ export class FriendsService {
       throw new NotFoundException('Sender ID not found in the database. Please log in again.');
     }
 
-    // cari target user by nama atau email
+    
     const targetUser = await this.prisma.user.findFirst({
       where: {
         OR: [
@@ -36,7 +36,7 @@ export class FriendsService {
       throw new BadRequestException('You cannot add yourself.');
     }
 
-    // cek udah temenan atau belom
+    
     const existingFriendship = await this.prisma.friendship.findFirst({
       where: {
         OR: [
@@ -50,7 +50,7 @@ export class FriendsService {
       throw new BadRequestException('Friend request already exists or you are already friends.');
     }
 
-    // bikin friend request baru
+    
     const newRequest = await this.prisma.friendship.create({
       data: {
         userId: data.requesterId,
@@ -62,9 +62,9 @@ export class FriendsService {
     return { message: 'Friend request sent successfully!', data: newRequest };
   }
 
-  // lihat siapa yang nge-add kamu
+  
   async getPendingRequests(userId: string) {
-    // cari pending request yang masuk
+    
     return this.prisma.friendship.findMany({
       where: {
         friendId: userId,

@@ -7,9 +7,9 @@ import { CreateExpenseDto } from './dto/create-expense.dto';
 export class ExpensesService {
   constructor(private prisma: PrismaService) { }
 
-  // tambah expense baru
+  
   async addExpense(data: CreateExpenseDto) {
-    // cek group ada gak
+    
     const group = await this.prisma.group.findUnique({
       where: { id: data.groupId },
     });
@@ -24,7 +24,7 @@ export class ExpensesService {
         amount: data.amount,
         groupId: data.groupId,
         payerId: data.payerId,
-        // per-person splits kalau ada
+        
         ...(data.splits && data.splits.length > 0
           ? {
             splits: {
@@ -50,7 +50,7 @@ export class ExpensesService {
     return { message: 'Expense recorded successfully!', data: newExpense };
   }
 
-  // ambil expense dalam group
+  
   async getGroupExpenses(groupId: string) {
     return this.prisma.expense.findMany({
       where: { groupId: groupId },
@@ -66,7 +66,7 @@ export class ExpensesService {
     });
   }
 
-  // ambil summary uang yang harus dibayar dan yang harus diterima
+  
   async getUserSummary(userId: string) {
     const owedToOthers = await this.prisma.expenseSplit.aggregate({
       where: {
@@ -104,7 +104,7 @@ export class ExpensesService {
     };
   }
 
-  // tandai split sebagai sudah dibayar (oleh yang hutang)
+  
   async markSplitAsPaid(splitId: string) {
     const split = await this.prisma.expenseSplit.findUnique({ where: { id: splitId } });
     if (!split) throw new NotFoundException('Split not found!');
@@ -114,7 +114,7 @@ export class ExpensesService {
     });
   }
 
-  // upload bukti pembayaran + tandai sebagai paid
+  
   async uploadProof(splitId: string, proofUrl: string) {
     const split = await this.prisma.expenseSplit.findUnique({ where: { id: splitId } });
     if (!split) throw new NotFoundException('Split not found!');
@@ -124,7 +124,7 @@ export class ExpensesService {
     });
   }
 
-  // ambil detail satu split (untuk halaman validasi)
+  
   async getSplitById(splitId: string) {
     const split = await this.prisma.expenseSplit.findUnique({
       where: { id: splitId },
@@ -137,7 +137,7 @@ export class ExpensesService {
     return split;
   }
 
-  // approve pembayaran (oleh yang dibayar)
+  
   async validateSplitPayment(splitId: string) {
     const split = await this.prisma.expenseSplit.findUnique({ where: { id: splitId } });
     if (!split) throw new NotFoundException('Split not found!');
@@ -147,7 +147,7 @@ export class ExpensesService {
     });
   }
 
-  // tolak pembayaran → reset supaya debtor upload ulang
+  
   async declineSplitPayment(splitId: string) {
     const split = await this.prisma.expenseSplit.findUnique({ where: { id: splitId } });
     if (!split) throw new NotFoundException('Split not found!');
@@ -160,7 +160,7 @@ export class ExpensesService {
   async getRecentActivity(userId: string) {
     const limit = 20;
 
-    // 1. Query Messages (Only received messages)
+    
     const messages = await this.prisma.message.findMany({
       where: {
         receiverId: userId,

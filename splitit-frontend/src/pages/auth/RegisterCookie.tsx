@@ -45,7 +45,7 @@ function RegisterCookie() {
         setError(null);
         try {
             await register(name, email, password);
-            // Auto login after registration to set cookies
+            
             await login(email, password);
             navigate("/groups");
         } catch (err: any) {
@@ -62,7 +62,7 @@ function RegisterCookie() {
             <PublicHeader title="Create Account" subtitle="Join For Fun & Start Sharing" />
 
             <div className="flex flex-col w-screen h-auto mt-[15px]">
-                {/* Form Component */}
+                {}
                 <form onSubmit={handleSubmit} className="flex flex-col w-[343px] h-auto mt-[20px] mx-auto">
                     {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
                     

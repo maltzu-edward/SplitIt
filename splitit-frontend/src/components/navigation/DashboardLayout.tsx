@@ -31,7 +31,7 @@ function DashboardLayout() {
         navigate("/login");
     };
 
-    // Ambient interactive particles in the background
+    
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -105,7 +105,7 @@ function DashboardLayout() {
 
     const navItems = [
         { path: "/expense", label: "Dashboard", icon: "dashboard" },
-        { path: "/friends", label: "Friends", icon: "person_add" },
+        { path: "/friends", label: "Friends", icon: "group" },
         { path: "/profile", label: "Profile", icon: "settings" }
     ];
 

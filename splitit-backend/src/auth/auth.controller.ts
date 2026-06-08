@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Res, Get, Req, UnauthorizedException, Patch, Param, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
-import type { Request, Response } from 'express'; // Use 'import type' to avoid TS1272 errors
+import type { Request, Response } from 'express'; 
 import * as jwt from 'jsonwebtoken';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto } from './dto/create-auth.dto';

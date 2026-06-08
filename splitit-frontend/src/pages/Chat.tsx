@@ -18,7 +18,7 @@ function Chat() {
   const prevMessagesLengthRef = useRef(0);
 
   useEffect(() => {
-    // Disable main window scrollbar while in Chat view
+    
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "unset";
@@ -39,7 +39,7 @@ function Chat() {
     }
   }, [user, friendId]);
 
-  // Poll for new messages every 3 seconds
+  
   useEffect(() => {
     if (!user || !friendId) return;
 
@@ -61,12 +61,12 @@ function Chat() {
     const isFirstLoad = prevMessagesLengthRef.current === 0;
     const lengthChanged = messages.length !== prevMessagesLengthRef.current;
 
-    // Check if user is scrolled near the bottom (within 150px)
+    
     const isNearBottom = container
       ? (container.scrollHeight - container.scrollTop - container.clientHeight < 150)
       : true;
 
-    // Check if the last message is from the logged-in user
+    
     const lastMessageIsMine = messages[messages.length - 1]?.senderId === user?.id;
 
     if (isFirstLoad || (lengthChanged && (isNearBottom || lastMessageIsMine))) {
@@ -124,9 +124,9 @@ function Chat() {
 
   return (
     <div className="absolute top-14 md:top-16 bottom-16 md:bottom-0 left-0 right-0 flex flex-col overflow-hidden px-2 md:px-6 py-4">
-      {/* Premium Glass Chat Container */}
+      {}
       <div className="flex-1 flex flex-col glass-surface rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
-        {/* Chat Header */}
+        {}
         <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/5 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <button
@@ -151,7 +151,7 @@ function Chat() {
           </button>
         </div>
 
-        {/* Messages Area */}
+        {}
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4 scrollbar-thin">
           {initialLoading && (
             <div className="flex flex-col items-center justify-center h-full">
